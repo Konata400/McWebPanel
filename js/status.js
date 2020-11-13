@@ -52,6 +52,12 @@ $(document).ready(function() {
                     document.getElementById("textoretorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta del servidor minecraft no tiene permisos de lectura.</div>";
                 } else if (data == "noejecutable") {
                     document.getElementById("textoretorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta del servidor minecraft no tiene permisos de ejecución.</div>";
+                } else if (data == "noconfigwrite") {
+                    document.getElementById("textoretorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta raiz config no tiene permisos de escritura.</div>";
+                } else if (data == "noconfservpropergwrite") {
+                    document.getElementById("textoretorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: El archivo serverproperties.txt de la carpeta config no tiene permisos de lectura.</div>";
+                } else if (data == "eulanowrite") {
+                    document.getElementById("textoretorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: El archivo eula.txt del servidor minecraft no tiene permisos de escritura.</div>";
                 }
             },
             error: function(errorThrown) {
@@ -104,9 +110,17 @@ $(document).ready(function() {
         });
     });
 
-    document.getElementById("binicio").disabled = true;
-    document.getElementById("bparar").disabled = true;
-    document.getElementById("bkill").disabled = true;
+    if (document.getElementById('binicio') != null) {
+        document.getElementById("binicio").disabled = true;
+    }
+
+    if (document.getElementById('bparar') != null) {
+        document.getElementById("bparar").disabled = true;
+    }
+
+    if (document.getElementById('bkill') != null) {
+        document.getElementById("bkill").disabled = true;
+    }
 
     var myVar = setInterval(myTimer, 1000);
 
@@ -123,17 +137,38 @@ $(document).ready(function() {
                 document.getElementById("horaserver").innerHTML = "Hora Servidor: " + data.hora;
 
                 if (data.encendido == "Apagado") {
-                    document.getElementById("binicio").disabled = false;
-                    document.getElementById("bparar").disabled = true;
-                    document.getElementById("bkill").disabled = true;
+
+                    if (document.getElementById('binicio') != null) {
+                        document.getElementById("binicio").disabled = false;
+                    }
+
+                    if (document.getElementById('bparar') != null) {
+                        document.getElementById("bparar").disabled = true;
+                    }
+
+                    if (document.getElementById('bkill') != null) {
+                        document.getElementById("bkill").disabled = true;
+                    }
+
                     document.getElementById("textocpu").innerHTML = "Cpu:";
                     document.getElementById("textoram").innerHTML = "Ram:";
                 } else if (data.encendido == "Encendido") {
                     document.getElementById("textocpu").innerHTML = "Cpu: " + data.cpu + "%";
-                    document.getElementById("textoram").innerHTML = "Ram: " + data.memoria + " / Total: " + data.ramconfig + " GB";
-                    document.getElementById("binicio").disabled = true;
-                    document.getElementById("bparar").disabled = false;
-                    document.getElementById("bkill").disabled = false;
+                    if (data.memoria != "") {
+                        document.getElementById("textoram").innerHTML = "Ram: " + data.memoria + " / Total: " + data.ramconfig + " GB";
+                    }
+
+                    if (document.getElementById('binicio') != null) {
+                        document.getElementById("binicio").disabled = true;
+                    }
+
+                    if (document.getElementById('bparar') != null) {
+                        document.getElementById("bparar").disabled = false;
+                    }
+
+                    if (document.getElementById('bkill') != null) {
+                        document.getElementById("bkill").disabled = false;
+                    }
                 }
             }
         });

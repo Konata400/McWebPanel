@@ -31,55 +31,58 @@ function test_input($data)
 
 //COMPROVAR SI SESSION EXISTE SINO CREARLA CON NO
 if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
-	$_SESSION['VALIDADO'] = "NO";
-	$_SESSION['KEYSECRETA'] = "0";
+    $_SESSION['VALIDADO'] = "NO";
+    $_SESSION['KEYSECRETA'] = "0";
 }
 
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_GET['action']) && !empty($_GET['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pbackupsdescargar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pbackupsdescargar'] == 1) {
 
-        $retorno = "";
-        $verificarex = "";
+        if (isset($_GET['action']) && !empty($_GET['action'])) {
 
-        $archivo = test_input($_GET['action']);
+            $retorno = "";
+            $verificarex = "";
 
-        //Evitar poder ir a una ruta hacia atras
-        if (strpos($archivo, '..') !== false || strpos($archivo, '*.*') !== false || strpos($archivo, '*/*.*') !== false) {
-            exit;
-        }
+            $archivo = test_input($_GET['action']);
 
-        //VERIFICAR EXTENSION
-        $verificarex = substr($archivo, -7);
-        if ($verificarex != ".tar.gz") {
-            exit;
-        }
-
-        $dirconfig = "";
-        $dirconfig = dirname(getcwd()) . PHP_EOL;
-        $dirconfig = trim($dirconfig);
-        $dirconfig .= "/backups";
-
-        $dirconfig = $dirconfig . "/" . $archivo;
-
-        //COMPROVAR SI EXISTE
-        if (file_exists($dirconfig)) {
-            //COMPROVAR SI SE PUEDE LEER
-            if (is_readable($dirconfig)) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . basename($dirconfig) . '"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($dirconfig));
-                readfile($dirconfig);
+            //Evitar poder ir a una ruta hacia atras
+            if (strpos($archivo, '..') !== false || strpos($archivo, '*.*') !== false || strpos($archivo, '*/*.*') !== false) {
                 exit;
-            }else{
-                echo ('<!doctype html><html lang="es"><head><title>Backups</title><link rel="stylesheet" href="../css/bootstrap.min.css"></head><body>');
-                echo '<div class="alert alert-danger" role="alert">Error: El backup no tiene permisos de lectura.</div>';
-                echo ('</body></html>');
+            }
+
+            //VERIFICAR EXTENSION
+            $verificarex = substr($archivo, -7);
+            if ($verificarex != ".tar.gz") {
+                exit;
+            }
+
+            $dirconfig = "";
+            $dirconfig = dirname(getcwd()) . PHP_EOL;
+            $dirconfig = trim($dirconfig);
+            $dirconfig .= "/backups";
+
+            $dirconfig = $dirconfig . "/" . $archivo;
+
+            //COMPROVAR SI EXISTE
+            if (file_exists($dirconfig)) {
+                //COMPROVAR SI SE PUEDE LEER
+                if (is_readable($dirconfig)) {
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="' . basename($dirconfig) . '"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($dirconfig));
+                    readfile($dirconfig);
+                    exit;
+                } else {
+                    echo ('<!doctype html><html lang="es"><head><title>Backups</title><link rel="stylesheet" href="../css/bootstrap.min.css"></head><body>');
+                    echo '<div class="alert alert-danger" role="alert">Error: El backup no tiene permisos de lectura.</div>';
+                    echo ('</body></html>');
+                }
             }
         }
     }

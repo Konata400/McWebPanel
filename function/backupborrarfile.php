@@ -31,50 +31,51 @@ function test_input($data)
 
 //COMPROVAR SI SESSION EXISTE SINO CREARLA CON NO
 if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
-	$_SESSION['VALIDADO'] = "NO";
-	$_SESSION['KEYSECRETA'] = "0";
+    $_SESSION['VALIDADO'] = "NO";
+    $_SESSION['KEYSECRETA'] = "0";
 }
 
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pbackupsborrar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pbackupsborrar'] == 1) {
 
-        $retorno ="";
-        $verificarex = "";
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-        $archivo = test_input($_POST['action']);
+            $retorno = "";
+            $verificarex = "";
 
-        //Evitar poder ir a una ruta hacia atras
-        if (strpos($archivo, '..') !== false || strpos($archivo, '*.*') !== false || strpos($archivo, '*/*.*') !== false) {
-            exit;
-        }
+            $archivo = test_input($_POST['action']);
 
-        //VERIFICAR EXTENSION
-        $verificarex = substr($archivo, -7);
-        if ($verificarex != ".tar.gz") {
-            exit;
-        }
-
-        $dirconfig = "";
-        $dirconfig = dirname(getcwd()) . PHP_EOL;
-        $dirconfig = trim($dirconfig);
-        $dirconfig .= "/backups";
-
-        $dirconfig = $dirconfig . "/" . $archivo;
-
-        if (file_exists($dirconfig)) {
-            //COMPROVAR SI SE PUEDE ESCRIVIR
-            if (is_writable($dirconfig)) {
-                $retorno = unlink($dirconfig);
-            }else {
-                $retorno = "nowritable";
+            //Evitar poder ir a una ruta hacia atras
+            if (strpos($archivo, '..') !== false || strpos($archivo, '*.*') !== false || strpos($archivo, '*/*.*') !== false) {
+                exit;
             }
-        }else{
-            $retorno = "noexiste";
+
+            //VERIFICAR EXTENSION
+            $verificarex = substr($archivo, -7);
+            if ($verificarex != ".tar.gz") {
+                exit;
+            }
+
+            $dirconfig = "";
+            $dirconfig = dirname(getcwd()) . PHP_EOL;
+            $dirconfig = trim($dirconfig);
+            $dirconfig .= "/backups";
+
+            $dirconfig = $dirconfig . "/" . $archivo;
+
+            if (file_exists($dirconfig)) {
+                //COMPROVAR SI SE PUEDE ESCRIVIR
+                if (is_writable($dirconfig)) {
+                    $retorno = unlink($dirconfig);
+                } else {
+                    $retorno = "nowritable";
+                }
+            } else {
+                $retorno = "noexiste";
+            }
         }
-
-
+        echo $retorno;
     }
-echo $retorno;
 }

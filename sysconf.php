@@ -32,11 +32,24 @@ require_once("template/header.php");
 
     <?php
 
+    $expulsar = 0;
+
     //COMPROVAR SI SESSION EXISTE SINO CREARLA CON NO
     if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
         $_SESSION['VALIDADO'] = "NO";
         $_SESSION['KEYSECRETA'] = "0";
         header("location:index.php");
+        exit;
+    }
+
+    //COMPROVAR SI ES EL SUPERADMIN O ADMIN O USER CON PERMISOS
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('psystemconf', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconf'] == 1) {
+        $expulsar = 1;
+    }
+
+    if ($expulsar != 1) {
+        header("location:index.php");
+        exit;
     }
 
     //VALIDAMOS SESSION SINO ERROR
@@ -74,6 +87,7 @@ require_once("template/header.php");
 
                                                     //VARIABLES
                                                     $contadorarchivos = 0;
+                                                    $contadorsiexiste = 0;
 
                                                     $recpuerto = CONFIGPUERTO;
                                                     $recram = CONFIGRAM;
@@ -84,18 +98,24 @@ require_once("template/header.php");
                                                     $receulaminecraft = CONFIGEULAMINECRAFT;
                                                     $recmaxupload = CONFIGMAXUPLOAD;
 
+                                                    $recgarbagecolector = CONFIGOPTIONGARBAGE;
+                                                    $recforseupgrade = CONFIGOPTIONFORCEUPGRADE;
+                                                    $recerasecache = CONFIGOPTIONERASECACHE;
+
                                                     $elnombredirectorio = $reccarpmine;
                                                     $rutaarchivo = getcwd();
                                                     $rutaarchivo = trim($rutaarchivo);
                                                     $rutaarchivo .= "/" . $elnombredirectorio;
 
                                                     //COMPRUEVA SI LA CARPETA DEL SERVIDOR MINECRAFT EXISTE
+                                                    clearstatcache();
                                                     if (!file_exists($rutaarchivo)) {
                                                         echo "<div class='alert alert-danger' role='alert'>Error: La carpeta del servidor minecraft no existe.</div>";
                                                         exit;
                                                     }
 
                                                     //COMPRUEBA SI LA CARPETA DEL SERVIDOR MINECRAFT SE PUEDE LEER
+                                                    clearstatcache();
                                                     if (!is_readable($rutaarchivo)) {
                                                         echo "<div class='alert alert-danger' role='alert'>Error: La carpeta del servidor minecraft no tiene permisos de lectura.</div>";
                                                         exit;
@@ -114,6 +134,10 @@ require_once("template/header.php");
                                                                         $fileNameCmps = explode(".", $file);
                                                                         $fileExtension = strtolower(end($fileNameCmps));
 
+                                                                        if ($file == $recarchivojar) {
+                                                                            $contadorsiexiste = 1;
+                                                                        }
+
                                                                         if ($fileExtension == "jar") {
                                                                             $contadorarchivos++;
                                                                         }
@@ -125,7 +149,7 @@ require_once("template/header.php");
                                                                     echo '<option selected disabled hidden>No hay subido ningún servidor .jar</option>';
                                                                 } else {
 
-                                                                    if ($recarchivojar == "") {
+                                                                    if ($recarchivojar == "" || $contadorsiexiste == 0) {
                                                                         echo '<option selected disabled hidden>No hay ningún servidor seleccionado</option>';
                                                                     }
 
@@ -154,91 +178,200 @@ require_once("template/header.php");
 
                                                         <div class="form-row">
 
-                                                            <div class="form-group col-md-6">
-                                                                <label for="elport">Puerto</label>
-                                                                <input type="number" value="<?php echo $recpuerto; ?>" class="form-control" id="elport" name="elport" required="required" min="1025" max="65535">
-                                                            </div>
+                                                            <?php
+                                                            //PUERTO
+                                                            if ($_SESSION['CONFIGUSER']['rango'] == 1 || array_key_exists('psystemconfpuerto', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconfpuerto'] == 1) {
+                                                            ?>
+                                                                <div class="form-group col-md-6">
+                                                                    <label for="elport">Puerto</label>
+                                                                    <input type="number" value="<?php echo $recpuerto; ?>" class="form-control" id="elport" name="elport" required="required" min="1025" max="65535">
+                                                                </div>
 
-                                                            <div class="form-group col-md-6">
-                                                                <label for="elram" class="">Memoria Ram Limite</label>
-                                                                <select id="elram" name="elram" class="form-control" required="required">
-                                                                    <?php
+                                                            <?php
+                                                            }
+                                                            ?>
 
-                                                                    $salida = shell_exec('free -h | grep Mem');
-                                                                    $totalram = substr($salida, 14, 4);
-                                                                    $totalram = preg_replace('/\s+/', '', $totalram);
-                                                                    $totalram = trim($totalram);
+                                                            <?php
+                                                            //PUERTO
+                                                            if ($_SESSION['CONFIGUSER']['rango'] == 1 || array_key_exists('psystemconfmemoria', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconfmemoria'] == 1) {
+                                                            ?>
+                                                                <div class="form-group col-md-6">
+                                                                    <label for="elram" class="">Memoria Ram Limite</label>
+                                                                    <select id="elram" name="elram" class="form-control" required="required">
+                                                                        <?php
 
-                                                                    for ($i = 1;; $i++) {
-                                                                        if ($i > $totalram) {
-                                                                            break;
+                                                                        $salida = shell_exec('free -h | grep Mem');
+                                                                        $totalram = substr($salida, 14, 4);
+                                                                        $totalram = preg_replace('/\s+/', '', $totalram);
+                                                                        $totalram = trim($totalram);
+
+                                                                        for ($i = 1;; $i++) {
+                                                                            if ($i > $totalram) {
+                                                                                break;
+                                                                            }
+
+                                                                            if ($recram == $i) {
+                                                                                echo '<option selected value="' . $i . '">' . $i . ' GB</option>';
+                                                                            } else {
+                                                                                echo '<option value="' . $i . '">' . $i . ' GB</option>';
+                                                                            }
                                                                         }
 
-                                                                        if ($recram == $i) {
-                                                                            echo '<option selected value="' . $i . '">' . $i . ' GB</option>';
-                                                                        } else {
-                                                                            echo '<option value="' . $i . '">' . $i . ' GB</option>';
-                                                                        }
-                                                                    }
-
-                                                                    ?>
-                                                                </select>
-                                                            </div>
+                                                                        ?>
+                                                                    </select>
+                                                                </div>
+                                                            <?php
+                                                            }
+                                                            ?>
                                                         </div>
 
                                                         <div class="form-row">
 
-                                                            <div class="form-group col-md-6">
-                                                                <label for="eltipserv">Tipo Servidor</label>
-                                                                <select id="eltipserv" name="eltipserv" class="form-control" required="required">
-                                                                    <?php
-                                                                    $opcionesserver = array('vanilla', 'spigot', 'paper', 'otros');
+                                                            <?php
+                                                            //TIPO SERVIDOR
+                                                            if ($_SESSION['CONFIGUSER']['rango'] == 1 || array_key_exists('psystemconftipo', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconftipo'] == 1) {
+                                                            ?>
 
-                                                                    for ($i = 0; $i < count($opcionesserver); $i++) {
 
-                                                                        if ($rectiposerv == $opcionesserver[$i]) {
-                                                                            echo '<option selected value="' . $opcionesserver[$i] . '">' . $opcionesserver[$i] . '</option>';
-                                                                        } else {
-                                                                            echo '<option value="' . $opcionesserver[$i] . '">' . $opcionesserver[$i] . '</option>';
+                                                                <div class="form-group col-md-6">
+                                                                    <label for="eltipserv">Tipo Servidor</label>
+                                                                    <select id="eltipserv" name="eltipserv" class="form-control" required="required">
+                                                                        <?php
+                                                                        $opcionesserver = array('vanilla', 'spigot', 'paper', 'otros');
+
+                                                                        for ($i = 0; $i < count($opcionesserver); $i++) {
+
+                                                                            if ($rectiposerv == $opcionesserver[$i]) {
+                                                                                echo '<option selected value="' . $opcionesserver[$i] . '">' . $opcionesserver[$i] . '</option>';
+                                                                            } else {
+                                                                                echo '<option value="' . $opcionesserver[$i] . '">' . $opcionesserver[$i] . '</option>';
+                                                                            }
                                                                         }
-                                                                    }
 
-                                                                    ?>
+                                                                        ?>
 
-                                                                </select>
+                                                                    </select>
+                                                                </div>
+
+                                                            <?php
+                                                            }
+                                                            ?>
+
+                                                            <?php
+                                                            //TIPO SERVIDOR
+                                                            if ($_SESSION['CONFIGUSER']['rango'] == 1 || array_key_exists('psystemconfsubida', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconfsubida'] == 1) {
+                                                            ?>
+
+                                                                <div class="form-group col-md-6">
+                                                                    <label for="elmaxupload">Subida Fichero Máximo (MB)</label>
+                                                                    <select id="elmaxupload" name="elmaxupload" class="form-control" required="required">
+                                                                        <?php
+
+                                                                        $opcionesserver = array('128', '256', '386', '512', '640', '768', '896', '1024');
+
+                                                                        for ($i = 0; $i < count($opcionesserver); $i++) {
+
+                                                                            if ($recmaxupload == $opcionesserver[$i]) {
+                                                                                echo '<option selected value="' . $opcionesserver[$i] . '">' . $opcionesserver[$i] . " MB" . '</option>';
+                                                                            } else {
+                                                                                echo '<option value="' . $opcionesserver[$i] . '">' . $opcionesserver[$i] . " MB" . '</option>';
+                                                                            }
+                                                                        }
+
+                                                                        ?>
+
+                                                                    </select>
+                                                                </div>
+                                                            <?php
+                                                            }
+                                                            ?>
+                                                        </div>
+
+                                                        <?php
+                                                        //NOMBRE SERVIDOR
+                                                        if ($_SESSION['CONFIGUSER']['rango'] == 1 || array_key_exists('psystemconfnombre', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconfnombre'] == 1) {
+                                                        ?>
+
+                                                            <div class="form-group">
+                                                                <label for="elnomserv">Nombre Servidor</label>
+                                                                <input type="text" class="form-control" id="elnomserv" name="elnomserv" required="required" value="<?php echo $recnombreserv; ?>">
                                                             </div>
 
-                                                            <div class="form-group col-md-6">
-                                                                <label for="elmaxupload">Subida Fichero Máximo (MB)</label>
-                                                                <select id="elmaxupload" name="elmaxupload" class="form-control" required="required">
-                                                                    <?php
+                                                        <?php
+                                                        }
+                                                        ?>
 
-                                                                    $opcionesserver = array('128', '256', '386', '512', '640', '768', '896', '1024');
+                                                        <?php
+                                                        //PARAMETROS AVANZADOS
+                                                        if ($_SESSION['CONFIGUSER']['rango'] == 1 || array_key_exists('psystemconfavanzados', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconfavanzados'] == 1) {
+                                                        ?>
+                                                        <div class="form-group">
+                                                            <label>Parametros Avanzados:</label>
+                                                            <div class="form-row">
+                                                                <div class="form-group col-md-6">
+                                                                    <br>
+                                                                    <label>Garbage collector - Recolector de basura</label>
+                                                                    <div>
+                                                                        <input type="radio" id="basura0" name="recbasura" value="0" <?php if ($recgarbagecolector == "0") {
+                                                                                                                                        echo "checked";
+                                                                                                                                    } ?>>
+                                                                        <label for="basura0">Ninguno</label>
+                                                                    </div>
 
-                                                                    for ($i = 0; $i < count($opcionesserver); $i++) {
+                                                                    <div>
+                                                                        <input type="radio" id="basura1" name="recbasura" value="1" <?php if ($recgarbagecolector == "1") {
+                                                                                                                                        echo "checked";
+                                                                                                                                    } ?>>
+                                                                        <label for="basura1">Usar ConcMarkSweepGC (Solo Java 8)</label>
+                                                                    </div>
 
-                                                                        if ($recmaxupload == $opcionesserver[$i]) {
-                                                                            echo '<option selected value="' . $opcionesserver[$i] . '">' . $opcionesserver[$i] . " MB" . '</option>';
-                                                                        } else {
-                                                                            echo '<option value="' . $opcionesserver[$i] . '">' . $opcionesserver[$i] . " MB" . '</option>';
-                                                                        }
-                                                                    }
+                                                                    <div>
+                                                                        <input type="radio" id="basura2" name="recbasura" value="2" <?php if ($recgarbagecolector == "2") {
+                                                                                                                                        echo "checked";
+                                                                                                                                    } ?>>
+                                                                        <label for="basura2">Usar G1GC (Java 8/11 o superior)</label>
+                                                                    </div>
 
-                                                                    ?>
+                                                                </div>
 
-                                                                </select>
+                                                                <div class="form-group col-md-6">
+                                                                    <br>
+                                                                    <label>Conversion Mapa ¡PRECAUCIÓN!</label>
+                                                                    <div>
+                                                                        <input id="opforceupgrade" name="opforceupgrade" type="checkbox" value="1"<?php if ($recforseupgrade == "1") {
+                                                                                                                                        echo "checked";
+                                                                                                                                    } ?>>
+                                                                        <label for="opforceupgrade">Usar --forceUpgrade (Requiere Versión: 1.13 o superior)</label>
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <input id="operasecache" name="operasecache" type="checkbox" value="1"<?php if ($recerasecache == "1") {
+                                                                                                                                        echo "checked";
+                                                                                                                                    } ?>>
+                                                                        <label for="operasecache">Usar --eraseCache (Requiere Versión: 1.14 o superior)</label>
+                                                                    </div>
+                                                                </div>
+
                                                             </div>
-                                                        </div>
 
-                                                        <div class="form-group">
-                                                            <label for="elnomserv">Nombre Servidor</label>
-                                                            <input type="text" class="form-control" id="elnomserv" name="elnomserv" required="required" value="<?php echo $recnombreserv; ?>">
                                                         </div>
-                                                        <div class="form-group">
-                                                            <label for="eldirect">Nombre carpeta del servidor Minecraft</label>
-                                                            <input readonly type="text" data-toggle="tooltip" data-placement="top" title="No se puede modificar la carpeta" class="form-control" id="eldirect" name="eldirect" required="required" value="<?php echo $reccarpmine; ?>">
-                                                        </div>
-                                                        <input id="minecrafteula" name="minecrafteula" type="hidden" value="<?php echo $receulaminecraft; ?>">
+                                                        <?php
+                                                        }
+                                                        ?>
+
+
+                                                        <?php
+                                                        //NOMBRE CARPETA
+                                                        if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2) {
+                                                        ?>
+                                                            <div class="form-group">
+                                                                <label for="eldirect">Nombre carpeta del servidor Minecraft</label>
+                                                                <input readonly type="text" data-toggle="tooltip" data-placement="top" title="No se puede modificar la carpeta" class="form-control" id="eldirect" name="eldirect" required="required" value="<?php echo $reccarpmine; ?>">
+                                                            </div>
+
+                                                        <?php
+                                                        }
+                                                        ?>
 
                                                         <div class="form-group">
                                                             <span id="result"></span>
@@ -260,22 +393,18 @@ require_once("template/header.php");
                         <!-- /.container-fluid -->
                     </div>
                     <!-- End of Main Content -->
-
-                    <!-- Footer -->
-                    <!-- End of Footer -->
                 </div>
                 <!-- End of Content Wrapper -->
             </div>
             <!-- End of Page Wrapper -->
-
-            <script src="js/sysconf.js"></script>
-
-        <?php
+        </div>
+        <script src="js/sysconf.js"></script>
+    <?php
         //FINAL VALIDAR SESSION
     } else {
         header("location:index.php");
     }
-        ?>
+    ?>
 
 </body>
 

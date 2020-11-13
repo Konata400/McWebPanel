@@ -41,6 +41,16 @@ require_once("template/header.php");
         exit;
     }
 
+    //COMPROVAR SI ES EL SUPERADMIN O ADMIN O USER CON PERMISOS
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivoseditar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivoseditar'] == 1) {
+        $expulsar = 1;
+    }
+
+    if ($expulsar != 1) {
+        header("location:index.php");
+        exit;
+    }
+
     //CARGAR SESSION
     if (!isset($_SESSION['EDITARFILE'])) {
         header("location:gestorarchivos.php");

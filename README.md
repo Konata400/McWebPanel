@@ -1,4 +1,4 @@
-# McWebPanel
+# McWebPanel (Versión Desarrollo)
 McWebPanel es un panel de administración de Software Libre exclusivo para Servidores Minecraft, creado para PHP7 para ser utilizado en servidores Apache.
 
 Diseñado pensando en usuarios con conocimientos limitados a la hora de crear servidores y con el objetivo de utilizar el menor número de dependencias posibles.
@@ -31,7 +31,7 @@ Apache Mod Rewrite  (Modulo Activado)
 
 ### Instalación 🔧
 
-Guia paso a paso para realizar la instalación
+Guía paso a paso para realizar la instalación
 
 Instalar Paquetes Requisitos
 
@@ -48,6 +48,9 @@ wget https://github.com/Konata400/McWebPanel/archive/master.zip
 Descomprimir:
 unzip master.zip
 
+Eliminar index.html por defecto de apache:
+sudo rm /var/www/html/index.html
+
 Copiar a la carpeta Apache:
 sudo cp -r McWebPanel-master/. /var/www/html/
 
@@ -61,19 +64,43 @@ Activar MOD Rewrite
 sudo a2enmod rewrite
 ```
 
-Configurar Directorio Apache (Obligatorio para proteger carpetas)
+Configurar Directorio Apache
+- Requerido para Proteger Carpetas.
+- Requerido para configuración Subir archivos.
 
 
 ```
+Editar configuración por defecto:
+sudo vim /etc/apache2/sites-available/000-default.conf
+
+Añadir la siguiente configuración:
+
+<VirtualHost *:80>
+
+ServerAdmin webmaster@localhost
+DocumentRoot /var/www/html
+
 <Directory /var/www/html>
 Options -Indexes
 AllowOverride All
 Require all granted
 </Directory>
+
+ErrorLog ${APACHE_LOG_DIR}/error.log
+CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+</VirtualHost>
+
 ```
 
-Reiniciar Apache
+Reiniciar Apache para aplicar cambios
 
 ```
 sudo systemctl restart apache2
+```
+
+Abre el navegador y entra en el panel
+
+```
+http://la-ip-del-servidor
 ```

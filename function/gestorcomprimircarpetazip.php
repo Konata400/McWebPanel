@@ -38,109 +38,126 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivoscomprimir', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivoscomprimir'] == 1) {
 
-        $archivo = "";
-        $retorno = "";
-        $elerror = 0;
-        $getarchivo = "";
-        $limpio = "";
-        $lacarpeta = "";
-        $test = 0;
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-        $archivo = test_input($_POST['action']);
+            $archivo = "";
+            $retorno = "";
+            $elerror = 0;
+            $getarchivo = "";
+            $limpio = "";
+            $lacarpeta = "";
+            $test = 0;
 
-        //COMPROBAR SI ESTA VACIO
-        if ($elerror == 0) {
-            if ($archivo == "") {
-                $retorno = "nada";
-                $elerror = 1;
-            }
-        }
+            $archivo = test_input($_POST['action']);
 
-        //AÑADIR RUTA ACTUAL AL ARCHIVO
-        if ($elerror == 0) {
-            $archivo = $_SESSION['RUTACTUAL'] . "/" . $archivo;
-        }
-
-        //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
-        if ($elerror == 0) {
-            if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
-                $retorno = "rutacambiada";
-                $elerror = 1;
-            }
-        }
-
-        //COMPOBAR SI HAY ".." "..."
-        if ($elerror == 0) {
-
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
-
-            for ($i = 0; $i < count($verificar); $i++) {
-
-                $test = substr_count($archivo, $verificar[$i]);
-
-                if ($test >= 1) {
-                    $retorno = "novalido";
+            //COMPROBAR SI ESTA VACIO
+            if ($elerror == 0) {
+                if ($archivo == "") {
+                    $retorno = "nada";
                     $elerror = 1;
                 }
             }
-        }
 
-        //MIRAR SI EXISTE
-        if ($elerror == 0) {
-            clearstatcache();
-            if (!file_exists($archivo)) {
-                $retorno = "noexiste";
-                $elerror = 1;
+            //AÑADIR RUTA ACTUAL AL ARCHIVO
+            if ($elerror == 0) {
+                $archivo = $_SESSION['RUTACTUAL'] . "/" . $archivo;
             }
-        }
 
-        //COMPROBAR SI EXISTE EL FICHERO
-        if ($elerror == 0) {
-
-            $getarchivo = pathinfo($archivo);
-            $limpio = $getarchivo['basename'];
-            $limpio .= ".zip";
-
-            $elzip = $_SESSION['RUTACTUAL'] . "/" . $limpio;
-
-            clearstatcache();
-            if (file_exists($elzip)) {
-                $retorno = "carpyaexiste";
-                $elerror = 1;
+            //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
+            if ($elerror == 0) {
+                if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
+                    $retorno = "rutacambiada";
+                    $elerror = 1;
+                }
             }
-        }
 
-        //COMPRIMIR
-        if ($elerror == 0) {
+            //COMPOBAR SI HAY ".." "..."
+            if ($elerror == 0) {
 
-            $zip = new ZipArchive();
-            if ($zip->open($elzip, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                $verificar = array('..', '...', '~', '../', './', '&&');
 
-                $files = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($archivo),
-                    RecursiveIteratorIterator::LEAVES_ONLY
-                );
+                for ($i = 0; $i < count($verificar); $i++) {
 
-                foreach ($files as $name => $file) {
+                    $test = substr_count($archivo, $verificar[$i]);
 
-                    if (!$file->isDir()) {
-
-                        $filePath = $file->getRealPath();
-                        $relativePath = substr($filePath, strlen($archivo) + 1);
-
-                        $zip->addFile($filePath, $relativePath);
+                    if ($test >= 1) {
+                        $retorno = "novalido";
+                        $elerror = 1;
                     }
                 }
-                $zip->close();
-                $retorno = "ok";
-            } else {
-                $retorno = 'fallo';
             }
-        }
 
-        $elarray = array("eserror" => $retorno, "carpeta" => $limpio);
-        echo json_encode($elarray);
+            //MIRAR SI EXISTE
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!file_exists($archivo)) {
+                    $retorno = "noexiste";
+                    $elerror = 1;
+                }
+            }
+
+            //COMPROBAR SI EXISTE EL FICHERO
+            if ($elerror == 0) {
+
+                $getarchivo = pathinfo($archivo);
+                $limpio = $getarchivo['basename'];
+                $limpio .= ".zip";
+
+                $elzip = $_SESSION['RUTACTUAL'] . "/" . $limpio;
+
+                clearstatcache();
+                if (file_exists($elzip)) {
+                    $retorno = "carpyaexiste";
+                    $elerror = 1;
+                }
+            }
+
+            //COMPROBAR SI SE PUEDE EJECUTAR/ENTRAR A LA CARPETA
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!is_executable($archivo)) {
+                    $retorno = "nopermenter";
+                    $elerror = 1;
+                }
+            }
+
+            //COMPRIMIR
+            if ($elerror == 0) {
+
+                $zip = new ZipArchive();
+                if ($zip->open($elzip, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+
+                    $files = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($archivo),
+                        RecursiveIteratorIterator::LEAVES_ONLY
+                    );
+
+                    foreach ($files as $name => $file) {
+
+                        if (!$file->isDir()) {
+
+                            $filePath = $file->getRealPath();
+                            $relativePath = substr($filePath, strlen($archivo) + 1);
+
+                            $zip->addFile($filePath, $relativePath);
+                        }
+                    }
+                    $zip->close();
+
+                    //PERFMISOS FTP
+                    $permcomando = "chmod 664 '" . $elzip . "'";
+                    exec($permcomando);
+
+                    $retorno = "ok";
+                } else {
+                    $retorno = 'fallo';
+                }
+            }
+
+            $elarray = array("eserror" => $retorno, "carpeta" => $limpio);
+            echo json_encode($elarray);
+        }
     }
 }

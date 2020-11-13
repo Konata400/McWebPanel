@@ -39,72 +39,75 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action']) || isset($_POST['eltexto']) && !empty($_POST['eltexto'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivoseditar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivoseditar'] == 1) {
 
-        $archivo = "";
-        $texto = "";
-        $retorno = "";
-        $elerror = 0;
-        $test = 0;
+        if (isset($_POST['action']) && !empty($_POST['action']) || isset($_POST['eltexto']) && !empty($_POST['eltexto'])) {
 
-        $archivo = test_input($_POST['action']);
-        $texto = $_POST['eltexto'];
+            $archivo = "";
+            $texto = "";
+            $retorno = "";
+            $elerror = 0;
+            $test = 0;
 
-        //COMPROBAR SI ESTA VACIO
-        if ($elerror == 0) {
-            if ($archivo == "") {
-                $retorno = "nada";
-                $elerror = 1;
-            }
-        }
+            $archivo = test_input($_POST['action']);
+            $texto = $_POST['eltexto'];
 
-        //AÑADIR RUTA ACTUAL AL ARCHIVO
-        if ($elerror == 0) {
-            $archivo = $_SESSION['RUTACTUAL'] . "/" . $archivo;
-        }
-
-        //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
-        if ($elerror == 0) {
-            if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
-                $retorno = "rutacambiada";
-                $elerror = 1;
-            }
-        }
-
-        //COMPOBAR SI HAY ".." "..."
-        if ($elerror == 0) {
-
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
-
-            for ($i = 0; $i < count($verificar); $i++) {
-
-                $test = substr_count($archivo, $verificar[$i]);
-
-                if ($test >= 1) {
-                    $retorno = "novalido";
+            //COMPROBAR SI ESTA VACIO
+            if ($elerror == 0) {
+                if ($archivo == "") {
+                    $retorno = "nada";
                     $elerror = 1;
                 }
             }
-        }
 
-        if ($elerror == 0) {
-            clearstatcache();
-            if (!file_exists($archivo)) {
-                $retorno = "noexiste";
-                $elerror = 1;
+            //AÑADIR RUTA ACTUAL AL ARCHIVO
+            if ($elerror == 0) {
+                $archivo = $_SESSION['RUTACTUAL'] . "/" . $archivo;
             }
-        }
 
-        if ($elerror == 0) {
-            clearstatcache();
-            if (is_writable($archivo)) {
-                file_put_contents($archivo, $texto);
-                $retorno = "OK";
-            } else {
-                $retorno = "nowrite";
+            //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
+            if ($elerror == 0) {
+                if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
+                    $retorno = "rutacambiada";
+                    $elerror = 1;
+                }
             }
-        }
 
-        echo $retorno;
+            //COMPOBAR SI HAY ".." "..."
+            if ($elerror == 0) {
+
+                $verificar = array('..', '...', '/.', '~', '../', './', '&&');
+
+                for ($i = 0; $i < count($verificar); $i++) {
+
+                    $test = substr_count($archivo, $verificar[$i]);
+
+                    if ($test >= 1) {
+                        $retorno = "novalido";
+                        $elerror = 1;
+                    }
+                }
+            }
+
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!file_exists($archivo)) {
+                    $retorno = "noexiste";
+                    $elerror = 1;
+                }
+            }
+
+            if ($elerror == 0) {
+                clearstatcache();
+                if (is_writable($archivo)) {
+                    file_put_contents($archivo, $texto);
+                    $retorno = "OK";
+                } else {
+                    $retorno = "nowrite";
+                }
+            }
+
+            echo $retorno;
+        }
     }
 }

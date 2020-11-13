@@ -38,79 +38,100 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action']) || isset($_POST['renombre']) && !empty($_POST['renombre'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivoscrearcarpeta', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivoscrearcarpeta'] == 1) {
 
-        $archivo = "";
-        $elnombre = "";
-        $retorno = "";
-        $elerror = 0;
-        $test = 0;
+        if (isset($_POST['action']) && !empty($_POST['action']) || isset($_POST['renombre']) && !empty($_POST['renombre'])) {
 
-        $elnombre = test_input($_POST['action']);
+            $archivo = "";
+            $elnombre = "";
+            $retorno = "";
+            $elerror = 0;
+            $test = 0;
 
-        //COMPROBAR SI ESTA VACIO RENOMBRE
-        if ($elerror == 0) {
-            if ($elnombre == "") {
-                $retorno = "norenom";
-                $elerror = 1;
-            }
-        }
+            $elnombre = test_input($_POST['action']);
 
-        //AÑADIR RUTA ACTUAL AL ARCHIVO
-        if ($elerror == 0) {
-            $archivo = $_SESSION['RUTACTUAL'];
-            $elimpio = $_SESSION['RUTACTUAL'];
-            $elnombre = $elimpio ."/" . $elnombre;
-        }
-
-        //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
-        if ($elerror == 0) {
-            if ($_SESSION['RUTALIMITE'] != substr($elnombre, 0, strlen($_SESSION['RUTALIMITE']))) {
-                $retorno = "rutacambiada";
-                $elerror = 1;
-            }
-        }
-
-        //COMPOBAR SI HAY ".." "..."
-        if ($elerror == 0) {
-
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
-
-            for ($i = 0; $i < count($verificar); $i++) {
-
-                $test = substr_count($elnombre, $verificar[$i]);
-
-                if ($test >= 1) {
-                    $retorno = "novalido";
+            //COMPROBAR SI ESTA VACIO RENOMBRE
+            if ($elerror == 0) {
+                if ($elnombre == "") {
+                    $retorno = "norenom";
                     $elerror = 1;
                 }
             }
-        }
 
-        //Comprovar si se puede escrivir
-        if ($elerror == 0) {
-            clearstatcache();
-            if (!is_writable($archivo)) {
-                $retorno = "nowrite";
-                $elerror = 1;
+            //BUSCAR CARACTERES PROHIBIDOS
+            if ($elerror == 0) {
+
+                $verificar = array('#', '<', '$', '+', '%', '>', '!', '`', '&', '*', '|', '{', '?', '=', '}', '/', ':', '@', "'", '"', "'\'");
+
+                for ($i = 0; $i < count($verificar); $i++) {
+
+                    $test = substr_count($elnombre, $verificar[$i]);
+
+                    if ($test >= 1) {
+                        $retorno = "novalido";
+                        $elerror = 1;
+                    }
+                }
             }
-        }
 
-        //Comprovar si existe el que se va a crear
-        if ($elerror == 0) {
-            clearstatcache();
-            if (file_exists($elnombre)) {
-                $retorno = "carpyaexiste";
-                $elerror = 1;
+            //AÑADIR RUTA ACTUAL AL ARCHIVO
+            if ($elerror == 0) {
+                $archivo = $_SESSION['RUTACTUAL'];
+                $elimpio = $_SESSION['RUTACTUAL'];
+                $elnombre = $elimpio . "/" . $elnombre;
             }
-        }
 
-        //Crear Carpeta
-        if ($elerror == 0) {
-            mkdir($elnombre, 0700);
-            $retorno = "OK";
-        }
+            //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
+            if ($elerror == 0) {
+                if ($_SESSION['RUTALIMITE'] != substr($elnombre, 0, strlen($_SESSION['RUTALIMITE']))) {
+                    $retorno = "rutacambiada";
+                    $elerror = 1;
+                }
+            }
 
-        echo $retorno;
+            //COMPOBAR SI HAY ".." "..."
+            if ($elerror == 0) {
+
+                $verificar = array('..', '...', '~', '../', './', '&&');
+
+                for ($i = 0; $i < count($verificar); $i++) {
+
+                    $test = substr_count($elnombre, $verificar[$i]);
+
+                    if ($test >= 1) {
+                        $retorno = "novalido";
+                        $elerror = 1;
+                    }
+                }
+            }
+
+            //Comprovar si se puede escrivir
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!is_writable($archivo)) {
+                    $retorno = "nowrite";
+                    $elerror = 1;
+                }
+            }
+
+            //Comprovar si existe el que se va a crear
+            if ($elerror == 0) {
+                clearstatcache();
+                if (file_exists($elnombre)) {
+                    $retorno = "carpyaexiste";
+                    $elerror = 1;
+                }
+            }
+
+            //Crear Carpeta
+            if ($elerror == 0) {
+                mkdir($elnombre, 0700);
+                $permcomando = "chmod 775 '" . $elnombre . "'";
+                exec($permcomando);
+                $retorno = "OK";
+            }
+
+            echo $retorno;
+        }
     }
 }

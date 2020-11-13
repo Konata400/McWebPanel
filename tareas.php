@@ -32,11 +32,24 @@ require_once("template/header.php");
 
     <?php
 
+    $expulsar = 0;
+
     //COMPROVAR SI SESSION EXISTE SINO CREARLA CON NO
     if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
         $_SESSION['VALIDADO'] = "NO";
         $_SESSION['KEYSECRETA'] = "0";
         header("location:index.php");
+        exit;
+    }
+
+    //COMPROVAR SI ES EL SUPERADMIN O ADMIN O USER CON PERMISOS
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pprogtareas', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pprogtareas'] == 1) {
+        $expulsar = 1;
+    }
+
+    if ($expulsar != 1) {
+        header("location:index.php");
+        exit;
     }
 
     //VALIDAMOS SESSION SINO ERROR
@@ -97,6 +110,14 @@ require_once("template/header.php");
                                                                     }
                                                                 }
 
+                                                                function test_input($data)
+                                                                {
+                                                                    $data = trim($data);
+                                                                    $data = stripslashes($data);
+                                                                    $data = htmlspecialchars($data);
+                                                                    return $data;
+                                                                }
+
                                                                 //INICIAR VARIABLES
                                                                 $contadorarchivos = 0;
                                                                 $eltamano = "";
@@ -126,15 +147,30 @@ require_once("template/header.php");
 
                                                                     //RECORRER ARRAY Y AÑADIR LAS PROPIEDADES Y LOS BOTONES
                                                                     for ($i = 0; $i < count($arrayobtenido); $i++) {
-                                                                        echo ('<tr id="' . $i . '">');
+                                                                        echo ('<tr class="menu-hover" id="' . $i . '">');
                                                                         echo ('<th scope="row">' . $arrayobtenido[$i]["nombre"] . '</th>');
                                                                         echo ('<td>' . devolver_accion($arrayobtenido[$i]["accion"]) . '</td>');
-                                                                        echo ('<td>' . $arrayobtenido[$i]["comando"] . '</td>');
+                                                                        echo ('<td>' . test_input(addslashes($arrayobtenido[$i]["comando"])) . '</td>');
                                                                         echo ('<td>' . $arrayobtenido[$i]["estado"] . '</td>');
                                                                         echo ('<td>');
                                                                 ?>
-                                                                        <button type="button" class="actdes btn btn-info text-white mr-1" value="<?php echo $i ?>">Activar/Desactivar</button>
-                                                                        <button type="button" class="borrar btn text-white btn-danger" value="<?php echo $i ?>">Borrar</button>
+
+                                                                        <?php
+                                                                        if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pprogtareasactdes', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pprogtareasactdes'] == 1) {
+                                                                        ?>
+                                                                            <button type="button" class="actdes btn btn-info text-white mr-1" value="<?php echo $i ?>">Activar/Desactivar</button>
+                                                                        <?php
+                                                                        }
+                                                                        ?>
+
+                                                                        <?php
+                                                                        if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pprogtareasborrar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pprogtareasborrar'] == 1) {
+                                                                        ?>
+                                                                            <button type="button" class="borrar btn text-white btn-danger" value="<?php echo $i ?>">Borrar</button>
+                                                                        <?php
+                                                                        }
+                                                                        ?>
+
                                                                         </td>
                                                                         </tr>
                                                                 <?php
@@ -147,18 +183,23 @@ require_once("template/header.php");
 
                                                     </div>
                                                     <hr>
-                                                    <h1 class="">Crear Tarea</h1>
-                                                    <div class="row">
-                                                        <div class="col-md-4">
-                                                            <button type="button" class="btn btn-primary btn-block btn-lg text-white mt-2" id="anadirtarea">Añadir Nueva Tarea</button>
-                                                        </div>
-                                                        <div class="col-md-8">
-                                                            <p class="lead" id="textotarearetorno"></p>
-                                                        </div>
-                                                    </div>
+                                                    <?php
+                                                    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pprogtareascrear', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pprogtareascrear'] == 1) {
+                                                    ?>
 
+                                                        <h1 class="">Crear Tarea</h1>
+                                                        <div class="row">
+                                                            <div class="col-md-4">
+                                                                <button type="button" class="btn btn-primary btn-block btn-lg text-white mt-2" id="anadirtarea">Añadir Nueva Tarea</button>
+                                                            </div>
+                                                            <div class="col-md-8">
+                                                                <p class="lead" id="textotarearetorno"></p>
+                                                            </div>
+                                                        </div>
+                                                    <?php
+                                                    }
+                                                    ?>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -167,16 +208,8 @@ require_once("template/header.php");
                         </div>
                     </div>
                 </div>
-                <!-- /.container-fluid -->
             </div>
-            <!-- End of Main Content -->
-
-            <!-- Footer -->
-            <!-- End of Footer -->
         </div>
-        <!-- End of Content Wrapper -->
-        </div>
-        <!-- End of Page Wrapper -->
 
         <script src="js/tareas.js"></script>
 
@@ -187,7 +220,6 @@ require_once("template/header.php");
         header("location:index.php");
     }
     ?>
-
 
 </body>
 

@@ -32,29 +32,49 @@ function test_input($data)
 
 //COMPROVAR SI SESSION EXISTE SINO CREARLA CON NO
 if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
-	$_SESSION['VALIDADO'] = "NO";
-	$_SESSION['KEYSECRETA'] = "0";
+  $_SESSION['VALIDADO'] = "NO";
+  $_SESSION['KEYSECRETA'] = "0";
 }
 
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-  if (isset($_POST['action']) && !empty($_POST['action'])) {
+  if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pconsolaenviar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pconsolaenviar'] == 1) {
 
-    $paraejecutar = test_input($_POST['action']);
+    if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-    //OBTENER PID SABER SI ESTA EN EJECUCION
-    $elcomando = "";
-    $elnombrescreen = CONFIGDIRECTORIO;
-    $elcomando = "screen -ls | awk '/\." . $elnombrescreen . "\t/ {print strtonum($1)'}";
-    $elpid = shell_exec($elcomando);
+      $elcomando = "";
+      $dirconfig = "";
+      $elnombrescreen = "";
+      $elpid = "";
+      $laejecucion = "";
+      $paraejecutar = "";
 
-    //SI ESTA EN EJECUCION ENVIAR COMANDO
-    if (!$elpid == "") {
-      $laejecucion = 'screen -S ' . $elnombrescreen . ' -X stuff "' . $paraejecutar . '\\015"';
-      shell_exec($laejecucion);
+      $paraejecutar = addslashes($_POST['action']);
+
+      //OBTENER PID SABER SI ESTA EN EJECUCION
+      $elnombrescreen = CONFIGDIRECTORIO;
+      $elcomando = "screen -ls | awk '/\." . $elnombrescreen . "\t/ {print strtonum($1)'}";
+      $elpid = shell_exec($elcomando);
+
+      //SI ESTA EN EJECUCION ENVIAR COMANDO
+      if (!$elpid == "") {
+        $laejecucion = 'screen -S ' . $elnombrescreen . ' -X stuff "' . trim($paraejecutar) . '^M"';
+        shell_exec($laejecucion);
+
+        //PERFMISOS FTP
+        if (strtolower($paraejecutar) == "stop") {
+          $dirconfig = dirname(getcwd()) . PHP_EOL;
+          $dirconfig = trim($dirconfig);
+          $dirconfig .= "/" . $elnombrescreen;
+
+          $permcomando = "cd '" . $dirconfig . "' && find . -type d -print0 | xargs -0 -I {} chmod 775 {}";
+          exec($permcomando);
+          $permcomando = "cd '" . $dirconfig . "' && find . -type f -print0 | xargs -0 -I {} chmod 664 {}";
+          exec($permcomando);
+        }
+      }
+      echo "ok";
     }
-
-    echo "ok";
   }
 }

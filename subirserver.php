@@ -32,11 +32,24 @@ require_once("template/header.php");
 
     <?php
 
+    $expulsar = 0;
+
     //COMPROVAR SI SESSION EXISTE SINO CREARLA CON NO
     if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
         $_SESSION['VALIDADO'] = "NO";
         $_SESSION['KEYSECRETA'] = "0";
         header("location:index.php");
+        exit;
+    }
+
+    //COMPROVAR SI ES EL SUPERADMIN O ADMIN O USER CON PERMISOS
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('psubirservidor', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psubirservidor'] == 1) {
+        $expulsar = 1;
+    }
+
+    if ($expulsar != 1) {
+        header("location:index.php");
+        exit;
     }
 
     //VALIDAMOS SESSION SINO ERROR
@@ -60,47 +73,54 @@ require_once("template/header.php");
 
                     <!-- Begin Page Content -->
                     <div class="container-fluid">
-
-                        <!-- Page Heading -->
-                        <br><br>
-                        <div class="container mt-3">
-                            <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="col-md-12">
+                            <div class="card border-left-primary shadow h-100">
                                 <div class="card-body">
+                                    <div class="py-1">
+                                        <div class="container">
+                                            <h1 class="mb-5">Subir Servidor Minecraft</h1>
+                                            <div class="row">
+                                                <div class="col-md-12">
 
-                                    <h2>Subir Servidor Minecraft</h2>
-                                    <p>El servidor.jar se alojará en la carpeta Minecraft correspondiente.</p>
-                                        <p>Archivo .jar:</p>
-                                        <p>(Limite Subida: <?php echo ini_get("upload_max_filesize"); ?>B)</p>
-                                        <form id="form" method="post" action="function/procesarjar.php" enctype="multipart/form-data">
-                                        <div class="custom-file mb-3">
-                                            <input type="file" class="custom-file-input" id="fileName" name="uploadedFile" accept=".jar">
-                                            <label class="custom-file-label" for="fileName">Elija el archivo</label>
+                                                    <p>El servidor.jar se alojará en la carpeta Minecraft correspondiente.</p>
+                                                    <p>Archivo .jar:</p>
+                                                    <p>(Limite Subida: <?php echo ini_get("upload_max_filesize"); ?>B)</p>
+
+                                                    <form id="form" method="post" action="function/procesarjar.php" enctype="multipart/form-data">
+
+                                                        <div class="custom-file mb-3">
+                                                            <input type="file" class="custom-file-input" id="fileName" name="uploadedFile" accept=".jar">
+                                                            <label class="custom-file-label" for="fileName">Elija el archivo</label>
+                                                        </div>
+
+                                                        <div class="mt-3">
+                                                            <button class="btn btn-primary" id="botonsubir" type="submit" value="Upload">Subir Archivo</button>
+                                                            <img class="" src="img/loading.gif" id="gifloading" alt="loading" width="147" height="72">
+
+                                                        </div>
+
+                                                    </form>
+
+                                                </div>
+                                            </div>
                                         </div>
-
-                                        <div class="mt-3">
-                                            <button class="btn btn-primary" id="botonsubir" type="submit" value="Upload">Subir Archivo</button>
-                                            <img class="" src="img/loading.gif" id="gifloading" alt="loading" width="147" height="72">
-
-                                        </div>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
+                        <!-- /.container-fluid -->
                     </div>
-                    <!-- /.container-fluid -->
+                    <!-- End of Main Content -->
+
+                    <!-- Footer -->
+                    <!-- End of Footer -->
                 </div>
-                <!-- End of Main Content -->
-
-                <!-- Footer -->
-                <!-- End of Footer -->
+                <!-- End of Content Wrapper -->
             </div>
-            <!-- End of Content Wrapper -->
+            <!-- End of Page Wrapper -->
+
+            <script src="js/subirserver.js"></script>
         </div>
-        <!-- End of Page Wrapper -->
-
-        <script src="js/subirserver.js"></script>
-
     <?php
         //FINAL VALIDAR SESSION
     } else {

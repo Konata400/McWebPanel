@@ -38,104 +38,131 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivosdescomprimir', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivosdescomprimir'] == 1) {
 
-        $archivo = "";
-        $retorno = "";
-        $elerror = 0;
-        $getarchivo = "";
-        $limpio = "";
-        $lacarpeta = "";
-        $test = 0;
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-        $archivo = test_input($_POST['action']);
+            $archivo = "";
+            $retorno = "";
+            $elerror = 0;
+            $getarchivo = "";
+            $limpio = "";
+            $lacarpeta = "";
+            $test = 0;
 
-        //COMPROBAR SI ESTA VACIO
-        if ($elerror == 0) {
-            if ($archivo == "") {
-                $retorno = "nada";
-                $elerror = 1;
-            }
-        }
+            $archivo = test_input($_POST['action']);
 
-        //AÑADIR RUTA ACTUAL AL ARCHIVO
-        if ($elerror == 0) {
-            $archivo = $_SESSION['RUTACTUAL'] . "/" . $archivo;
-        }
-
-        //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
-        if ($elerror == 0) {
-            if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
-                $retorno = "rutacambiada";
-                $elerror = 1;
-            }
-        }
-
-        //COMPOBAR SI HAY ".." "..."
-        if ($elerror == 0) {
-
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
-
-            for ($i = 0; $i < count($verificar); $i++) {
-
-                $test = substr_count($archivo, $verificar[$i]);
-
-                if ($test >= 1) {
-                    $retorno = "novalido";
+            //COMPROBAR SI ESTA VACIO
+            if ($elerror == 0) {
+                if ($archivo == "") {
+                    $retorno = "nada";
                     $elerror = 1;
                 }
             }
-        }
 
-        //MIRAR SI EXISTE
-        if ($elerror == 0) {
-            clearstatcache();
-            if (!file_exists($archivo)) {
-                $retorno = "noexiste";
-                $elerror = 1;
+            //AÑADIR RUTA ACTUAL AL ARCHIVO
+            if ($elerror == 0) {
+                $archivo = $_SESSION['RUTACTUAL'] . "/" . $archivo;
             }
-        }
 
-        //obtener solo nombre fichero sin extension
-        if ($elerror == 0) {
-            $getarchivo = pathinfo($archivo);
-            $limpio = "." . strtolower($getarchivo['extension']);
-
-            if ($limpio == ".zip") {
-                $limpio = rtrim($getarchivo['basename'], ".zip");
-            } else {
-                $retorno = "nozip";
-                $elerror = 1;
+            //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
+            if ($elerror == 0) {
+                if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
+                    $retorno = "rutacambiada";
+                    $elerror = 1;
+                }
             }
-        }
 
-        //comprovar si existe la carpeta
-        if ($elerror == 0) {
-            $lacarpeta = $getarchivo['dirname'] . "/" . $limpio;
+            //COMPOBAR SI HAY ".." "..."
+            if ($elerror == 0) {
 
-            clearstatcache();
-            if (!file_exists($lacarpeta)) {
-                mkdir($lacarpeta, 0700);
-            } else {
-                $retorno = "carpyaexiste";
-                $elerror = 1;
+                $verificar = array('..', '...', '~', '../', './', '&&');
+
+                for ($i = 0; $i < count($verificar); $i++) {
+
+                    $test = substr_count($archivo, $verificar[$i]);
+
+                    if ($test >= 1) {
+                        $retorno = "novalido";
+                        $elerror = 1;
+                    }
+                }
             }
-        }
 
-        //DESCOMPRIMIR
-        if ($elerror == 0) {
-
-            $zip = new ZipArchive;
-            if ($zip->open($archivo) === TRUE) {
-                $zip->extractTo($lacarpeta);
-                $zip->close();
-                $retorno = 'ok';
-            } else {
-                $retorno = 'fallo';
+            //MIRAR SI EXISTE
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!file_exists($archivo)) {
+                    $retorno = "noexiste";
+                    $elerror = 1;
+                }
             }
-        }
 
-        $elarray = array("eserror" => $retorno, "carpeta" => $limpio);
-        echo json_encode($elarray);
+            //obtener solo nombre fichero sin extension
+            if ($elerror == 0) {
+                $getarchivo = pathinfo($archivo);
+                $limpio = "." . strtolower($getarchivo['extension']);
+
+                if ($limpio == ".zip") {
+                    $limpio = rtrim($getarchivo['basename'], ".zip");
+                } else {
+                    $retorno = "nozip";
+                    $elerror = 1;
+                }
+            }
+
+            //comprovar si existe la carpeta
+            if ($elerror == 0) {
+                $lacarpeta = $getarchivo['dirname'] . "/" . $limpio;
+
+                clearstatcache();
+                if (!file_exists($lacarpeta)) {
+                    mkdir($lacarpeta, 0700);
+                } else {
+                    $retorno = "carpyaexiste";
+                    $elerror = 1;
+                }
+            }
+
+            //DESCOMPRIMIR
+            if ($elerror == 0) {
+
+                $zip = new ZipArchive;
+                if ($zip->open($archivo) === TRUE) {
+                    $zip->extractTo($lacarpeta);
+                    $zip->close();
+
+                    //PERFMISOS FTP
+                    $permcomando = "cd '" . $lacarpeta . "' && find . -type d -print0 | xargs -0 -I {} chmod 775 {}";
+                    exec($permcomando);
+                    $permcomando = "cd '" . $lacarpeta . "' && find . -type f -print0 | xargs -0 -I {} chmod 664 {}";
+                    exec($permcomando);
+
+                    $retorno = 'ok';
+                } else {
+                    $retorno = 'fallo';
+
+                    //PARCHE POR SI ES ZIP64
+                    $permcomando = "unzip " . $archivo . " -d " . $lacarpeta;
+                    $retorno = exec($permcomando);
+
+                    if ($retorno == trim("Archive:  " . $archivo)) {
+                        $permcomando = "rm -R " . $lacarpeta;
+                        exec($permcomando);
+                        $retorno = "fallo";
+                    } else {
+                        //PERFMISOS FTP
+                        $permcomando = "cd '" . $lacarpeta . "' && find . -type d -print0 | xargs -0 -I {} chmod 775 {}";
+                        exec($permcomando);
+                        $permcomando = "cd '" . $lacarpeta . "' && find . -type f -print0 | xargs -0 -I {} chmod 664 {}";
+                        exec($permcomando);
+                        $retorno = "ok";
+                    }
+                }
+            }
+
+            $elarray = array("eserror" => $retorno, "carpeta" => $limpio);
+            echo json_encode($elarray);
+        }
     }
 }

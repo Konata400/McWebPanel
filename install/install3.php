@@ -65,6 +65,20 @@ require_once("../template/errorreport.php");
         return $data;
     }
 
+    function generarkey()
+    {
+        $secretkey = "";
+        $gethash = "";
+
+        for ($a = 1; $a <= 32; $a++) {
+            $secretkey .= strval(random_int(0, 9));
+        }
+
+        $gethash = hash("sha3-512", $secretkey);
+
+        return $gethash;
+    }
+
     // No se aceptan metodos que no sean post
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -78,6 +92,7 @@ require_once("../template/errorreport.php");
         $laram = "";
         $eltiposerver = "";
         $loserrores = 0;
+        $lakey = "";
 
         //OBTENER RUTA DONDE TIENE QUE ESTAR LA CARPETA CONFIG
         $dirconfig = "";
@@ -131,6 +146,7 @@ require_once("../template/errorreport.php");
         $dircarpserver .= "/" . $eldirectorio;
 
         //SI HAY PERMISOS ESCRITURA EN RAIZ
+        clearstatcache();
         if (!is_writable($rutaraiz)) {
             echo "La carpeta raiz no tiene permisos de escritura";
             exit;
@@ -143,18 +159,25 @@ require_once("../template/errorreport.php");
         }
 
         //CREAR CARPETA CONFIG
+        clearstatcache();
         if (!file_exists($dirconfig)) {
             mkdir($dirconfig, 0700);
         }
 
         //CREAR CARPETA BACKUP
+        clearstatcache();
         if (!file_exists($dirbackups)) {
             mkdir($dirbackups, 0700);
         }
 
         //CREAR CARPETA SERVER MINECRAFT
+        clearstatcache();
         if (!file_exists($dircarpserver)) {
             mkdir($dircarpserver, 0700);
+
+            //PERFMISOS FTP
+            $permcomando = "chmod 775 '" . $dircarpserver . "'";
+            exec($permcomando);
         }
 
         //GENERAR TAREA CRONTAB
@@ -221,7 +244,8 @@ require_once("../template/errorreport.php");
 
         $arrayadmin[0]['usuario'] = $elusuario;
         $arrayadmin[0]['hash'] = $hashed;
-        $arrayadmin[0]['superadmin'] = "1";
+        $arrayadmin[0]['rango'] = 1;
+        $arrayadmin[0]['estado'] = "activado";
 
         $serialized = serialize($arrayadmin);
         file_put_contents($rutaescrivir, $serialized);
@@ -230,8 +254,12 @@ require_once("../template/errorreport.php");
         $rutaescrivir = $dirconfig;
         $rutaescrivir .= "/confopciones.php";
 
+        $lakey = generarkey($lakey);
+        $lakey .= $t;
+
         $file = fopen($rutaescrivir, "w");
         fwrite($file, "<?php " . PHP_EOL);
+        fwrite($file, 'define("CONFIGSESSIONKEY", "' . $lakey . '");' . PHP_EOL);
         fwrite($file, 'define("CONFIGNOMBRESERVER", "' . $elnombreservidor . '");' . PHP_EOL);
         fwrite($file, 'define("CONFIGDIRECTORIO", "' . $eldirectorio . '");' . PHP_EOL);
         fwrite($file, 'define("CONFIGPUERTO", "' . $elpuerto . '");' . PHP_EOL);
@@ -240,6 +268,9 @@ require_once("../template/errorreport.php");
         fwrite($file, 'define("CONFIGARCHIVOJAR", "");' . PHP_EOL);
         fwrite($file, 'define("CONFIGEULAMINECRAFT", "");' . PHP_EOL);
         fwrite($file, 'define("CONFIGMAXUPLOAD", "' . $elmaxupload . '");' . PHP_EOL);
+        fwrite($file, 'define("CONFIGOPTIONGARBAGE", "0");' . PHP_EOL);
+        fwrite($file, 'define("CONFIGOPTIONFORCEUPGRADE", "0");' . PHP_EOL);
+        fwrite($file, 'define("CONFIGOPTIONERASECACHE", "0");' . PHP_EOL);
         fwrite($file, "?>" . PHP_EOL);
         fclose($file);
 

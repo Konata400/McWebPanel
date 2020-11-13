@@ -34,15 +34,28 @@ require_once("template/header.php");
 
     <?php
 
+    $expulsar = 0;
+
     //COMPROVAR SI SESSION EXISTE SINO CREARLA CON NO
-    if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])){
+    if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
         $_SESSION['VALIDADO'] = "NO";
         $_SESSION['KEYSECRETA'] = "0";
         header("location:index.php");
+        exit;
+    }
+
+    //COMPROVAR SI ES EL SUPERADMIN O ADMIN O USER CON PERMISOS
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pconsolaread', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pconsolaread'] == 1) {
+        $expulsar = 1;
+    }
+
+    if ($expulsar != 1) {
+        header("location:index.php");
+        exit;
     }
 
     //VALIDAMOS SESSION SINO ERROR
-    if($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']){
+    if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
     ?>
 
         <!-- Page Wrapper -->
@@ -70,24 +83,30 @@ require_once("template/header.php");
 
                             <div class="row">
                                 <div class="col-md-12">
-                                    <textarea readonly class="form-control textoconsola mb-1" id="laconsola" name="laconsola" rows="24" cols="100"></textarea>
+                                    <textarea readonly class="form-control textoconsola mb-1" id="laconsola" name="laconsola"></textarea>
                                 </div>
                             </div>
 
                         </div>
                         <hr>
-                        <div class="py-0">
+                        <?php
+                        if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pconsolaenviar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pconsolaenviar'] == 1) {
+                        ?>
+                            <div class="py-0">
 
-                            <div class="row">
-                                <div class="col-md-11">
-                                    <input type="text" class="form-control mb-2" id="elcomando" name="elcomando" placeholder="Comando">
+                                <div class="row">
+                                    <div class="col-md-11">
+                                        <input type="text" class="form-control mb-2" id="elcomando" name="elcomando" placeholder="Comando">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button class="btn btn-primary mb-2" id="botonconsola" type="button">Enviar</button>
+                                    </div>
                                 </div>
-                                <div class="col-md-1">
-                                    <button class="btn btn-primary mb-2" id="botonconsola" type="button">Enviar</button>
-                                </div>
+
                             </div>
-
-                        </div>
+                        <?php
+                        }
+                        ?>
 
 
                     </div>
@@ -102,7 +121,7 @@ require_once("template/header.php");
         </div>
         <!-- End of Page Wrapper -->
 
-        <script src="js/consola.js"></script> 
+        <script src="js/consola.js"></script>
 
     <?php
         //FINAL VALIDAR SESSION

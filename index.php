@@ -17,19 +17,9 @@ Copyright (C) 2020 Cristina Ibañez, Konata400
     You should have received a copy of the GNU General Public License
     along with McWebPanel.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-require_once("template/session.php");
+//require_once("template/session.php");
 require_once("template/errorreport.php");
 require_once("template/header.php");
-
-if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
-  $_SESSION['VALIDADO'] = "NO";
-  $_SESSION['KEYSECRETA'] = "0";
-}
-
-if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
-  header("location:status.php");
-}
 ?>
 
 <!-- Estilo CSS -->
@@ -43,6 +33,188 @@ if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
   <form class="form-signin" action="function/login.php" method="POST" id="login-form">
 
     <?php
+
+    $elerror = 0;
+    $yainstall = 0;
+    $showerrors = "";
+
+    $iniverificarpraiz = getcwd();
+    $iniverificarpraiz = trim($iniverificarpraiz);
+
+    $iniverifirutatemplate = getcwd();
+    $iniverifirutatemplate = trim($iniverifirutatemplate);
+    $iniverifirutatemplate .= "/template";
+
+    $iniverifirutaconfig = getcwd();
+    $iniverifirutaconfig = trim($iniverifirutaconfig);
+    $iniverifirutaconfig .= "/config";
+
+    $iniverificonfuserjson = getcwd();
+    $iniverificonfuserjson = trim($iniverificonfuserjson);
+    $iniverificonfuserjson .= "/config/confuser.json";
+
+    $iniverificonfopcionesphp = getcwd();
+    $iniverificonfopcionesphp = trim($iniverificonfopcionesphp);
+    $iniverificonfopcionesphp .= "/config/confopciones.php";
+
+    $iniverificonfserverpropertiestxt = getcwd();
+    $iniverificonfserverpropertiestxt = trim($iniverificonfserverpropertiestxt);
+    $iniverificonfserverpropertiestxt .= "/config/serverproperties.txt";
+
+    //VERIFICAR CARPETA RAIZ
+    clearstatcache();
+    if (!is_readable($iniverificarpraiz)) {
+      $showerrors .= 'Error: No tienes permisos de lectura en la carpeta raiz, revisa los permisos de linux.<br><br>';
+      $elerror = 1;
+    }
+
+    if (!is_writable($iniverificarpraiz)) {
+      $showerrors .= 'Error: No tienes permisos de escritura en la carpeta raiz, revisa los permisos de linux.<br><br>';
+      $elerror = 1;
+    }
+
+    if (!is_executable($iniverifirutatemplate)) {
+      $showerrors .= 'Error: No tienes permisos de ejecucion en la carpeta raiz, revisa los permisos de linux.<br><br>';
+      $elerror = 1;
+    }
+
+    //VERIFICAR TEMPLATE
+    clearstatcache();
+    if (!is_readable($iniverifirutatemplate)) {
+      $showerrors .= 'Error: No tienes permisos de lectura en la carpeta template, revisa los permisos de linux.<br><br>';
+      $elerror = 1;
+    }
+
+    clearstatcache();
+    if (!is_writable($iniverifirutatemplate)) {
+      $showerrors .= 'Error: No tienes permisos de escritura en la carpeta template, revisa los permisos de linux.<br><br>';
+      $elerror = 1;
+    }
+
+    clearstatcache();
+    if (!is_executable($iniverifirutatemplate)) {
+      $showerrors .= 'Error: No tienes permisos de ejecucion en la carpeta template, revisa los permisos de linux.<br><br>';
+      $elerror = 1;
+    }
+
+    //VERIFICAR CONFIG
+    clearstatcache();
+    if (file_exists($iniverifirutaconfig)) {
+      clearstatcache();
+      if (!is_readable($iniverifirutaconfig)) {
+        $showerrors .= 'Error: No tienes permisos de lectura en la carpeta config, revisa los permisos de linux.<br><br>';
+        $elerror = 1;
+        $yainstall = 1;
+      }
+    } else {
+      $yainstall = 1;
+    }
+
+    clearstatcache();
+    if (file_exists($iniverifirutaconfig)) {
+      clearstatcache();
+      if (!is_writable($iniverifirutaconfig)) {
+        $showerrors .= 'Error: No tienes permisos de escritura en la carpeta config, revisa los permisos de linux.<br><br>';
+        $elerror = 1;
+        $yainstall = 1;
+      }
+    } else {
+      $yainstall = 1;
+    }
+
+    clearstatcache();
+    if (file_exists($iniverifirutaconfig)) {
+      clearstatcache();
+      if (!is_executable($iniverifirutaconfig)) {
+        $showerrors .= 'Error: No tienes permisos de ejecucion en la carpeta config, revisa los permisos de linux.<br><br>';
+        $elerror = 1;
+        $yainstall = 1;
+      }
+    } else {
+      $yainstall = 1;
+    }
+
+    //VERIFICAR /config/confuser.json";
+    clearstatcache();
+    if (file_exists($iniverificonfuserjson)) {
+      clearstatcache();
+      if (!is_readable($iniverificonfuserjson)) {
+        $showerrors .= 'Error: No tiene permisos de lectura en el archivo /config/confuser.json, revisa los permisos de linux.<br><br>';
+        $elerror = 1;
+        $yainstall = 1;
+      }
+    } else {
+      $yainstall = 1;
+    }
+
+    clearstatcache();
+    if (file_exists($iniverificonfuserjson)) {
+      clearstatcache();
+      if (!is_writable($iniverificonfuserjson)) {
+        $showerrors .= 'Error: No tiene permisos de escritura en el archivo /config/confuser.json, revisa los permisos de linux.<br><br>';
+        $elerror = 1;
+        $yainstall = 1;
+      }
+    } else {
+      $yainstall = 1;
+    }
+
+    //VERIFICAR /config/confopciones.php";
+    clearstatcache();
+    if (file_exists($iniverificonfopcionesphp)) {
+      clearstatcache();
+      if (!is_readable($iniverificonfopcionesphp)) {
+        $showerrors .= 'Error: No tienes permisos de lectura en el archivo /config/confopciones.php, revisa los permisos de linux.<br><br>';
+        $elerror = 1;
+        $yainstall = 1;
+      }
+    } else {
+      $yainstall = 1;
+    }
+
+    clearstatcache();
+    if (file_exists($iniverificonfopcionesphp)) {
+      clearstatcache();
+      if (!is_writable($iniverificonfopcionesphp)) {
+        $showerrors .= 'Error: No tienes permisos de escritura en el archivo /config/confopciones.php, revisa los permisos de linux.<br><br>';
+        $elerror = 1;
+        $yainstall = 1;
+      }
+    } else {
+      $yainstall = 1;
+    }
+
+
+    if ($yainstall == 0 && $elerror == 0) {
+
+      //VERIFICAR /config/serverproperties.txt";
+      clearstatcache();
+      if (!file_exists($iniverificonfserverpropertiestxt)) {
+        $showerrors .= 'Error: El archivo serverproperties.txt no existe , vuelve a realizar el install.<br><br>';
+        $elerror = 1;
+      } else {
+
+        clearstatcache();
+        if (!is_readable($iniverificonfserverpropertiestxt)) {
+          $showerrors .= 'Error: No tienes permisos de lectura en el archivo /config/serverproperties.txt, revisa los permisos de linux.<br><br>';
+          $elerror = 1;
+        }
+
+        clearstatcache();
+        if (!is_writable($iniverificonfserverpropertiestxt)) {
+          $showerrors .= 'Error: No tienes permisos de escritura en el archivo /config/serverproperties.txt, revisa los permisos de linux.<br><br>';
+          $elerror = 1;
+        }
+      }
+    }
+
+    if ($elerror == 1) {
+      echo '<div class="alert alert-danger" role="alert">' .$showerrors .'</div>';
+      exit;
+    }
+
+
+
     //CARGA VARIABLES
     $sumaconfig = 0;
     $sumainstall = 0;
@@ -54,6 +226,7 @@ if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
     $rutaarchivo = trim($rutaarchivo);
     $rutaarchivo .= "/config/confuser.json";
 
+    clearstatcache();
     if (file_exists($rutaarchivo)) {
       $sumaconfig++;
     }
@@ -62,6 +235,7 @@ if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
     $rutaarchivo = trim($rutaarchivo);
     $rutaarchivo .= "/config/confopciones.php";
 
+    clearstatcache();
     if (file_exists($rutaarchivo)) {
       $sumaconfig++;
     }
@@ -71,6 +245,7 @@ if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
     $rutainstall = trim($rutainstall);
     $rutainstall .= "/install";
 
+    clearstatcache();
     if (file_exists($rutainstall)) {
       $sumainstall++;
     }
@@ -94,6 +269,18 @@ if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
       exit;
     } elseif ($sumaconfig == 2 && $sumainstall == 0) {
       //instalacion correcta
+      require_once("template/session.php");
+
+      if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
+        $_SESSION['VALIDADO'] = "NO";
+        $_SESSION['KEYSECRETA'] = "0";
+      }
+      
+      if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
+        header("location:status.php");
+        exit;
+      }
+
       require_once("config/confopciones.php");
     }
     $recnombreserv = CONFIGNOMBRESERVER;

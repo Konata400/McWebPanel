@@ -39,23 +39,26 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pstatuskillserver', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pstatuskillserver'] == 1) {
 
-        $retorno = "";
-        $elerror = 0;
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-        //OBTENER PID SABER SI ESTA EN EJECUCION
-        $elcomando = "";
-        $elnombrescreen = CONFIGDIRECTORIO;
-        $elcomando = "screen -ls | awk '/\." . $elnombrescreen . "\t/ {print strtonum($1)'}";
-        $elpid = shell_exec($elcomando);
+            $retorno = "";
+            $elerror = 0;
 
-        //SI ESTA EN EJECUCION ENVIAR COMANDO MATAR SESSION
-        if (!$elpid == "") {
-            $laejecucion = 'screen -S ' . $elnombrescreen . ' -X kill';
-            shell_exec($laejecucion);
-            $retorno = "ok";
+            //OBTENER PID SABER SI ESTA EN EJECUCION
+            $elcomando = "";
+            $elnombrescreen = CONFIGDIRECTORIO;
+            $elcomando = "screen -ls | awk '/\." . $elnombrescreen . "\t/ {print strtonum($1)'}";
+            $elpid = shell_exec($elcomando);
+
+            //SI ESTA EN EJECUCION ENVIAR COMANDO MATAR SESSION
+            if (!$elpid == "") {
+                $laejecucion = 'screen -S ' . $elnombrescreen . ' -X kill';
+                shell_exec($laejecucion);
+                $retorno = "ok";
+            }
+            echo $retorno;
         }
-        echo $retorno;
     }
 }

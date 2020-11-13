@@ -18,6 +18,16 @@ Copyright (C) 2020 Cristina Ibañez, Konata400
 
 $(document).ready(function() {
 
+    function redimensionar() {
+        var tamano = window.innerHeight;
+        tamano = tamano - 150;
+        document.getElementById("laconsola").style.height = tamano + "px";
+    }
+
+    redimensionar();
+
+    window.addEventListener("resize", redimensionar);
+
     var myVar = setInterval(myTimer, 500);
 
     function myTimer() {
@@ -64,15 +74,19 @@ $(document).ready(function() {
         }
     }
 
-    $("#botonconsola").click(function() {
-        enviarcomando();
-    });
-
-    $("#elcomando").keypress(function(e) {
-        if (e.keyCode == 13) {
+    if (document.getElementById('botonconsola') != null) {
+        $("#botonconsola").click(function() {
             enviarcomando();
-        }
-    });
+        });
+    }
+
+    if (document.getElementById('elcomando') != null) {
+        $("#elcomando").keypress(function(e) {
+            if (e.keyCode == 13) {
+                enviarcomando();
+            }
+        });
+    }
 
     var mySessionTimer = setInterval(sessionTimer, 1000);
 

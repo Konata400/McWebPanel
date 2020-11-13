@@ -18,68 +18,13 @@ Copyright (C) 2020 Cristina Ibañez, Konata400
 
 $(document).ready(function() {
 
-    var entrarbuttons = document.getElementsByClassName('entrar');
-    for (var i = 0; i < entrarbuttons.length; i++) {
-        entrarbuttons[i].addEventListener("click", function() {
-            $.ajax({
-                type: "POST",
-                url: "function/carpetaentrar.php",
-                data: {
-                    action: this.value
-                },
-                success: function(data) {
-                    var getdebug = 0;
-                    if (getdebug == 1) {
-                        alert(data);
-                    }
-
-                    if (data == "OK") {
-                        location.reload();
-                    }
-
-
-                }
-            });
-
-        })
-    }
-
-    var atrasbuttons = document.getElementsByClassName('atras');
-    for (var i = 0; i < atrasbuttons.length; i++) {
-        atrasbuttons[i].addEventListener("click", function() {
-            $.ajax({
-                type: "POST",
-                url: "function/carpetatras.php",
-                data: {
-                    action: this.value
-                },
-                success: function(data) {
-                    var getdebug = 0;
-                    if (getdebug == 1) {
-                        alert(data);
-                    }
-
-                    if (data == "OK") {
-                        location.reload();
-                    } else if (data == "noatras") {
-                        alert("No puedes salir de la carpeta del servidor minecraft");
-                    }
-
-
-                }
-            });
-
-        })
-    }
-
-    var borrarfilebuttons = document.getElementsByClassName('borrarfile');
-    for (var i = 0; i < borrarfilebuttons.length; i++) {
-        borrarfilebuttons[i].addEventListener("click", function() {
-            var eleccion = confirm("¡ATENCIÓN!\n\n¿Estás seguro de eliminar el archivo: " + this.id + " ?");
-            if (eleccion == true) {
+    if (document.getElementsByClassName('entrar') != null) {
+        var entrarbuttons = document.getElementsByClassName('entrar');
+        for (var i = 0; i < entrarbuttons.length; i++) {
+            entrarbuttons[i].addEventListener("click", function() {
                 $.ajax({
                     type: "POST",
-                    url: "function/gestorborrarfile.php",
+                    url: "function/carpetaentrar.php",
                     data: {
                         action: this.value
                     },
@@ -89,36 +34,27 @@ $(document).ready(function() {
                             alert(data);
                         }
 
-                        if (data == "1") {
+                        if (data == "OK") {
                             location.reload();
-                        } else if (data == "noexiste") {
-                            alert("El archivo no existe");
-                            location.reload();
-                        } else if (data == "nada") {
-                            alert("No hay ruta a borrar");
-                        } else if (data == "rutacambiada") {
-                            alert("Ruta no válida");
-                        } else if (data == "novalido") {
-                            alert("Ruta no válida");
-                        } else if (data == "nowrite") {
-                            alert("El archivo no tiene permisos de escritura");
+                        } else if (data == "nopermenter") {
+                            alert("No tienes permiso de ejecucion/enter en la carpeta");
                         }
 
 
                     }
                 });
-            }
-        })
+
+            })
+        }
     }
 
-    var borrarcarpetabuttons = document.getElementsByClassName('borrarcarpeta');
-    for (var i = 0; i < borrarcarpetabuttons.length; i++) {
-        borrarcarpetabuttons[i].addEventListener("click", function() {
-            var eleccion = confirm("¡ATENCIÓN!\n\n¿Estás seguro de eliminar la carpeta: " + this.id + " ?");
-            if (eleccion == true) {
+    if (document.getElementsByClassName('atras') != null) {
+        var atrasbuttons = document.getElementsByClassName('atras');
+        for (var i = 0; i < atrasbuttons.length; i++) {
+            atrasbuttons[i].addEventListener("click", function() {
                 $.ajax({
                     type: "POST",
-                    url: "function/gestorborrarcarpeta.php",
+                    url: "function/carpetatras.php",
                     data: {
                         action: this.value
                     },
@@ -128,41 +64,209 @@ $(document).ready(function() {
                             alert(data);
                         }
 
-                        if (data == "1") {
+                        if (data == "OK") {
                             location.reload();
-                        } else if (data == "nada") {
-                            alert("No hay ruta");
-                        } else if (data == "rutacambiada") {
-                            alert("Ruta no válida");
-                        } else if (data == "novalido") {
-                            alert("Ruta no válida");
-                        } else if (data == "noexiste") {
-                            alert("La carpeta no existe");
-                            location.reload();
-                        } else if (data == "nowrite") {
-                            alert("La carpeta no tiene permisos de escritura");
-                        } else if (data == "noborrado") {
-                            alert("Error: La carpeta no se pudo borrar");
+                        } else if (data == "noatras") {
+                            alert("No puedes salir de la carpeta del servidor minecraft");
                         }
 
 
                     }
                 });
-            }
-        })
+
+            })
+        }
     }
 
-    var renamefilebuttons = document.getElementsByClassName('renamefile');
-    for (var i = 0; i < renamefilebuttons.length; i++) {
-        renamefilebuttons[i].addEventListener("click", function() {
-            var renombrado = prompt("Renombrar fichero:", this.id);
-            if (renombrado != null) {
+    if (document.getElementsByClassName('borrarfile') != null) {
+        var borrarfilebuttons = document.getElementsByClassName('borrarfile');
+        for (var i = 0; i < borrarfilebuttons.length; i++) {
+            borrarfilebuttons[i].addEventListener("click", function() {
+                var eleccion = confirm("¡ATENCIÓN!\n\n¿Estás seguro de eliminar el archivo: " + this.id + " ?");
+                if (eleccion == true) {
+                    $.ajax({
+                        type: "POST",
+                        url: "function/gestorborrarfile.php",
+                        data: {
+                            action: this.value
+                        },
+                        success: function(data) {
+                            var getdebug = 0;
+                            if (getdebug == 1) {
+                                alert(data);
+                            }
+
+                            if (data == "1") {
+                                location.reload();
+                            } else if (data == "noexiste") {
+                                alert("El archivo no existe");
+                                location.reload();
+                            } else if (data == "nada") {
+                                alert("No hay ruta a borrar");
+                            } else if (data == "rutacambiada") {
+                                alert("Ruta no válida");
+                            } else if (data == "novalido") {
+                                alert("Ruta no válida");
+                            } else if (data == "nowrite") {
+                                alert("El archivo no tiene permisos de escritura");
+                            }
+
+
+                        }
+                    });
+                }
+            })
+        }
+    }
+
+    if (document.getElementsByClassName('borrarcarpeta') != null) {
+        var borrarcarpetabuttons = document.getElementsByClassName('borrarcarpeta');
+        for (var i = 0; i < borrarcarpetabuttons.length; i++) {
+            borrarcarpetabuttons[i].addEventListener("click", function() {
+                var eleccion = confirm("¡ATENCIÓN!\n\n¿Estás seguro de eliminar la carpeta: " + this.id + " ?");
+                if (eleccion == true) {
+                    $.ajax({
+                        type: "POST",
+                        url: "function/gestorborrarcarpeta.php",
+                        data: {
+                            action: this.value
+                        },
+                        success: function(data) {
+                            var getdebug = 0;
+                            if (getdebug == 1) {
+                                alert(data);
+                            }
+
+                            if (data == "1") {
+                                location.reload();
+                            } else if (data == "nada") {
+                                alert("No hay ruta");
+                            } else if (data == "rutacambiada") {
+                                alert("Ruta no válida");
+                            } else if (data == "novalido") {
+                                alert("Ruta no válida");
+                            } else if (data == "noexiste") {
+                                alert("La carpeta no existe");
+                                location.reload();
+                            } else if (data == "nowrite") {
+                                alert("La carpeta no tiene permisos de escritura");
+                            } else if (data == "nopermenter") {
+                                alert("No tienes permiso de ejecucion/enter en la carpeta");
+                            } else if (data == "noborrado") {
+                                alert("Error: La carpeta no se pudo borrar");
+                            }
+
+
+                        }
+                    });
+                }
+            })
+        }
+    }
+
+    if (document.getElementsByClassName('renamefile') != null) {
+        var renamefilebuttons = document.getElementsByClassName('renamefile');
+        for (var i = 0; i < renamefilebuttons.length; i++) {
+            renamefilebuttons[i].addEventListener("click", function() {
+                var renombrado = prompt("Renombrar fichero:", this.id);
+                if (renombrado != null) {
+                    $.ajax({
+                        type: "POST",
+                        url: "function/gestorenamefile.php",
+                        data: {
+                            action: this.value,
+                            renombre: renombrado
+                        },
+                        success: function(data) {
+                            var getdebug = 0;
+                            if (getdebug == 1) {
+                                alert(data);
+                            }
+
+                            if (data == "1") {
+                                location.reload();
+                            } else if (data == "revacio") {
+                                alert("El renombre esta vacío");
+                            } else if (data == "archvacio") {
+                                alert("La ruta esta vacía");
+                            } else if (data == "rutacambiada") {
+                                alert("Ruta no válida");
+                            } else if (data == "novalido") {
+                                alert("Ruta no válida");
+                            } else if (data == "renomnovalido") {
+                                alert("Renombre no válido");
+                            } else if (data == "noexiste") {
+                                alert("El archivo no existe");
+                                location.reload();
+                            } else if (data == "yaexiste") {
+                                alert("Ya existe un archivo con ese nombre");
+                            } else if (data == "nowrite") {
+                                alert("El archivo no tiene permisos de escritura");
+                            }
+
+                        }
+                    });
+                }
+            })
+        }
+    }
+
+    if (document.getElementsByClassName('renamefolder') != null) {
+        var renamefolderbuttons = document.getElementsByClassName('renamefolder');
+        for (var i = 0; i < renamefolderbuttons.length; i++) {
+            renamefolderbuttons[i].addEventListener("click", function() {
+                var renombrado = prompt("Renombrar carpeta:", this.id);
+                if (renombrado != null) {
+                    $.ajax({
+                        type: "POST",
+                        url: "function/gestorrenamefolder.php",
+                        data: {
+                            action: this.value,
+                            renombre: renombrado
+                        },
+                        success: function(data) {
+                            var getdebug = 0;
+                            if (getdebug == 1) {
+                                alert(data);
+                            }
+
+                            if (data == "1") {
+                                location.reload();
+                            } else if (data == "revacio") {
+                                alert("El renombre esta vacío");
+                            } else if (data == "archvacio") {
+                                alert("La ruta esta vacía");
+                            } else if (data == "rutacambiada") {
+                                alert("Ruta no valida");
+                            } else if (data == "novalido") {
+                                alert("Ruta no valida");
+                            } else if (data == "renomnovalido") {
+                                alert("Renombre no válido");
+                            } else if (data == "noexiste") {
+                                alert("El archivo no existe");
+                                location.reload();
+                            } else if (data == "yaexiste") {
+                                alert("Ya existe una carpeta con ese nombre");
+                            } else if (data == "nowrite") {
+                                alert("La carpeta no tiene permisos de escritura");
+                            }
+
+                        }
+                    });
+                }
+            })
+        }
+    }
+
+    if (document.getElementsByClassName('editarfile') != null) {
+        var editarbuttons = document.getElementsByClassName('editarfile');
+        for (var i = 0; i < editarbuttons.length; i++) {
+            editarbuttons[i].addEventListener("click", function() {
                 $.ajax({
                     type: "POST",
-                    url: "function/gestorenamefile.php",
+                    url: "function/gestoreditarfile.php",
                     data: {
-                        action: this.value,
-                        renombre: renombrado
+                        action: this.value
                     },
                     success: function(data) {
                         var getdebug = 0;
@@ -170,353 +274,242 @@ $(document).ready(function() {
                             alert(data);
                         }
 
-                        if (data == "1") {
-                            location.reload();
-                        } else if (data == "revacio") {
-                            alert("El renombre esta vacío");
-                        } else if (data == "archvacio") {
-                            alert("La ruta esta vacía");
-                        } else if (data == "rutacambiada") {
-                            alert("Ruta no válida");
-                        } else if (data == "novalido") {
-                            alert("Ruta no válida");
-                        } else if (data == "renomnovalido") {
-                            alert("Renombre no válido");
-                        } else if (data == "noexiste") {
-                            alert("El archivo no existe");
-                            location.reload();
-                        } else if (data == "yaexiste") {
-                            alert("Ya existe un archivo con ese nombre");
+                        if (data == "OK") {
+                            location.href = "editararchivo.php";
+                        } else if (data == "noruta") {
+                            alert("No se ha pasado ningún archivo a editar");
                         } else if (data == "nowrite") {
                             alert("El archivo no tiene permisos de escritura");
-                        }
-
-                    }
-                });
-            }
-        })
-    }
-
-    var renamefolderbuttons = document.getElementsByClassName('renamefolder');
-    for (var i = 0; i < renamefolderbuttons.length; i++) {
-        renamefolderbuttons[i].addEventListener("click", function() {
-            var renombrado = prompt("Renombrar carpeta:", this.id);
-            if (renombrado != null) {
-                $.ajax({
-                    type: "POST",
-                    url: "function/gestorrenamefolder.php",
-                    data: {
-                        action: this.value,
-                        renombre: renombrado
-                    },
-                    success: function(data) {
-                        var getdebug = 0;
-                        if (getdebug == 1) {
-                            alert(data);
-                        }
-
-                        if (data == "1") {
-                            location.reload();
-                        } else if (data == "revacio") {
-                            alert("El renombre esta vacío");
-                        } else if (data == "archvacio") {
-                            alert("La ruta esta vacía");
-                        } else if (data == "rutacambiada") {
-                            alert("Ruta no valida");
-                        } else if (data == "novalido") {
-                            alert("Ruta no valida");
-                        } else if (data == "renomnovalido") {
-                            alert("Renombre no válido");
                         } else if (data == "noexiste") {
                             alert("El archivo no existe");
                             location.reload();
-                        } else if (data == "yaexiste") {
-                            alert("Ya existe una carpeta con ese nombre");
-                        } else if (data == "nowrite") {
-                            alert("La carpeta no tiene permisos de escritura");
+                        }
+
+
+                    }
+                });
+
+            })
+        }
+    }
+
+    if (document.getElementsByClassName('descargarfile') != null) {
+        var descargarbuttons = document.getElementsByClassName('descargarfile');
+        for (var i = 0; i < descargarbuttons.length; i++) {
+            descargarbuttons[i].addEventListener("click", function() {
+                window.open('function/gestordownfile.php?action=' + this.value, '_blank', 'noopener noreferrer', "toolbar=no,scrollbars=yes,resizable=yes,top=400,left=500,width=400,height=100");
+            })
+        }
+    }
+
+    if (document.getElementsByClassName('descomprimirtar') != null) {
+        var descomprimirtarbuttons = document.getElementsByClassName('descomprimirtar');
+        for (var i = 0; i < descomprimirtarbuttons.length; i++) {
+            descomprimirtarbuttons[i].addEventListener("click", function() {
+                if (document.getElementById('gifloading') != null) {
+                    document.getElementById("gifloading").style.visibility = "visible";
+                }
+                var tqxhr = $.ajax({
+                    url: 'function/gestordescomprimirtar.php',
+                    data: {
+                        action: this.value
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (document.getElementById('gifloading') != null) {
+                            document.getElementById("gifloading").style.visibility = "hidden";
+                        }
+
+                        if (data.eserror == "nada") {
+                            alert("No se ha pasado ningún archivo a descomprimir");
+                        } else if (data.eserror == "notargz") {
+                            alert("El archivo no es .tag.gz");
+                        } else if (data.eserror == "notarbz2") {
+                            alert("El archivo no es .tag.bz2");
+                        } else if (data.eserror == "notar") {
+                            alert("El archivo no es .tar");
+                        } else if (data.eserror == "noexiste") {
+                            alert("El archivo tar a descomprimir no existe");
+                            location.reload();
+                        } else if (data.eserror == "carpyaexiste") {
+                            alert("No se puede descomprimir, la carpeta: " + data.carpeta + " ya existe");
+                        } else if (data.eserror == "no") {
+                            alert("Error al descomprimir");
+                        } else if (data.eserror == "ok") {
+                            alert("Descomprimido en la carpeta: " + data.carpeta);
+                            location.reload();
                         }
 
                     }
                 });
-            }
-        })
+            })
+        }
     }
 
-    var editarbuttons = document.getElementsByClassName('editarfile');
-    for (var i = 0; i < editarbuttons.length; i++) {
-        editarbuttons[i].addEventListener("click", function() {
-            $.ajax({
-                type: "POST",
-                url: "function/gestoreditarfile.php",
-                data: {
-                    action: this.value
-                },
-                success: function(data) {
-                    var getdebug = 0;
-                    if (getdebug == 1) {
-                        alert(data);
-                    }
-
-                    if (data == "OK") {
-                        location.href = "editararchivo.php";
-                    } else if (data == "noruta") {
-                        alert("No se ha pasado ningún archivo a editar");
-                    } else if (data == "nowrite") {
-                        alert("El archivo no tiene permisos de escritura");
-                    } else if (data == "noexiste") {
-                        alert("El archivo no existe");
-                        location.reload();
-                    }
-
-
+    if (document.getElementsByClassName('descomprimirzip') != null) {
+        var descomprimirzipbuttons = document.getElementsByClassName('descomprimirzip');
+        for (var i = 0; i < descomprimirzipbuttons.length; i++) {
+            descomprimirzipbuttons[i].addEventListener("click", function() {
+                if (document.getElementById('gifloading') != null) {
+                    document.getElementById("gifloading").style.visibility = "visible";
                 }
-            });
+                var tqxhr = $.ajax({
+                    url: 'function/gestordescomprimirzip.php',
+                    data: {
+                        action: this.value
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (document.getElementById('gifloading') != null) {
+                            document.getElementById("gifloading").style.visibility = "hidden";
+                        }
 
-        })
-    }
+                        if (data.eserror == "nada") {
+                            alert("No se ha pasado ningún archivo a descomprimir");
+                        } else if (data.eserror == "noexiste") {
+                            alert("El archivo a descomprimir no existe");
+                            location.reload();
+                        } else if (data.eserror == "nozip") {
+                            alert("El archivo no es .zip");
+                        } else if (data.eserror == "carpyaexiste") {
+                            alert("No se puede descomprimir, la carpeta: " + data.carpeta + " ya existe");
+                        } else if (data.eserror == "fallo") {
+                            alert("Error al descomprimir");
+                        } else if (data.eserror == "ok") {
+                            alert("Zip descomprimido en la carpeta: " + data.carpeta);
+                            location.reload();
+                        }
 
-    var descargarbuttons = document.getElementsByClassName('descargarfile');
-    for (var i = 0; i < descargarbuttons.length; i++) {
-        descargarbuttons[i].addEventListener("click", function() {
-            window.open('function/gestordownfile.php?action=' + this.value, '_blank', 'noopener noreferrer', "toolbar=no,scrollbars=yes,resizable=yes,top=400,left=500,width=400,height=100");
-        })
-    }
-
-    var descomprimirtarbuttons = document.getElementsByClassName('descomprimirtar');
-    for (var i = 0; i < descomprimirtarbuttons.length; i++) {
-        descomprimirtarbuttons[i].addEventListener("click", function() {
-            var tqxhr = $.ajax({
-                url: 'function/gestordescomprimirtar.php',
-                data: {
-                    action: this.value
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(data) {
-
-                    if (data.eserror == "nada") {
-                        alert("No se ha pasado ningún archivo a descomprimir");
-                    } else if (data.eserror == "notargz") {
-                        alert("El archivo no es .tag.gz");
-                    } else if (data.eserror == "notarbz2") {
-                        alert("El archivo no es .tag.bz2");
-                    } else if (data.eserror == "notar") {
-                        alert("El archivo no es .tar");
-                    } else if (data.eserror == "noexiste") {
-                        alert("El archivo tar a descomprimir no existe");
-                        location.reload();
-                    } else if (data.eserror == "carpyaexiste") {
-                        alert("No se puede descomprimir, la carpeta: " + data.carpeta + " ya existe");
-                    } else if (data.eserror == "no") {
-                        alert("Error al descomprimir");
-                    } else if (data.eserror == "ok") {
-                        alert("Descomprimido en la carpeta: " + data.carpeta);
-                        location.reload();
                     }
-
-                }
-            });
-        })
+                });
+            })
+        }
     }
 
-    var descomprimirzipbuttons = document.getElementsByClassName('descomprimirzip');
-    for (var i = 0; i < descomprimirzipbuttons.length; i++) {
-        descomprimirzipbuttons[i].addEventListener("click", function() {
-            var tqxhr = $.ajax({
-                url: 'function/gestordescomprimirzip.php',
-                data: {
-                    action: this.value
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(data) {
+    if (document.getElementsByClassName('comprimirzipfolder') != null) {
+        var comprimircarpetazipbuttons = document.getElementsByClassName('comprimirzipfolder');
+        for (var i = 0; i < comprimircarpetazipbuttons.length; i++) {
+            comprimircarpetazipbuttons[i].addEventListener("click", function() {
+                if (document.getElementById('gifloading') != null) {
+                    document.getElementById("gifloading").style.visibility = "visible";
+                }
+                var tqxhr = $.ajax({
+                    url: 'function/gestorcomprimircarpetazip.php',
+                    data: {
+                        action: this.value
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (document.getElementById('gifloading') != null) {
+                            document.getElementById("gifloading").style.visibility = "hidden";
+                        }
 
-                    if (data.eserror == "nada") {
-                        alert("No se ha pasado ningún archivo a descomprimir");
-                    } else if (data.eserror == "noexiste") {
-                        alert("El archivo a descomprimir no existe");
-                        location.reload();
-                    } else if (data.eserror == "nozip") {
-                        alert("El archivo no es .zip");
-                    } else if (data.eserror == "carpyaexiste") {
-                        alert("No se puede descomprimir, la carpeta: " + data.carpeta + " ya existe");
-                    } else if (data.eserror == "fallo") {
-                        alert("Error al descomprimir");
-                    } else if (data.eserror == "ok") {
-                        alert("Zip descomprimido en la carpeta: " + data.carpeta);
-                        location.reload();
+                        if (data.eserror == "nada") {
+                            alert("No se ha pasado ningún archivo a descomprimir");
+                        } else if (data.eserror == "noexiste") {
+                            alert("La carpeta a comprimir no existe");
+                            location.reload();
+                        } else if (data.eserror == "carpyaexiste") {
+                            alert("No se puede comprimir, la carpeta: " + data.carpeta + " ya existe");
+                        } else if (data.eserror == "fallo") {
+                            alert("Error al comprimir");
+                        } else if (data.eserror == "nopermenter") {
+                            alert("No tienes permiso de ejecucion/enter en la carpeta");
+                        } else if (data.eserror == "ok") {
+                            alert("Zip comprimido en archivo: " + data.carpeta);
+                            location.reload();
+                        }
+
                     }
-
-                }
-            });
-        })
+                });
+            })
+        }
     }
 
-    var comprimircarpetazipbuttons = document.getElementsByClassName('comprimirzipfolder');
-    for (var i = 0; i < comprimircarpetazipbuttons.length; i++) {
-        comprimircarpetazipbuttons[i].addEventListener("click", function() {
-            var tqxhr = $.ajax({
-                url: 'function/gestorcomprimircarpetazip.php',
-                data: {
-                    action: this.value
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(data) {
-                    if (data.eserror == "nada") {
-                        alert("No se ha pasado ningún archivo a descomprimir");
-                    } else if (data.eserror == "noexiste") {
-                        alert("La carpeta a comprimir no existe");
-                        location.reload();
-                    } else if (data.eserror == "carpyaexiste") {
-                        alert("No se puede comprimir, la carpeta: " + data.carpeta + " ya existe");
-                    } else if (data.eserror == "fallo") {
-                        alert("Error al comprimir");
-                    } else if (data.eserror == "ok") {
-                        alert("Zip comprimido en archivo: " + data.carpeta);
-                        location.reload();
-                    }
-
-                }
-            });
-        })
+    if (document.getElementById('botonsubir') != null) {
+        document.getElementById("botonsubir").disabled = true;
     }
 
-    document.getElementById("botonsubir").disabled = true;
-    document.getElementById("gifloading").style.visibility = "hidden";
+    if (document.getElementById('gifloading') != null) {
+        document.getElementById("gifloading").style.visibility = "hidden";
+    }
 
     $(".custom-file-input").on("change", function() {
         var fileName = $(this).val().split("\\").pop();
 
         $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-        document.getElementById("botonsubir").disabled = false;
+        if (document.getElementById('botonsubir') != null) {
+            document.getElementById("botonsubir").disabled = false;
+        }
 
     });
 
-    $("#bnactualizar").click(function() {
-        location.reload();
-    });
+    if (document.getElementById('bnactualizar') != null) {
+        $("#bnactualizar").click(function() {
+            location.reload();
+        });
+    }
 
-    $("#bnnuevacarpeta").click(function() {
-        var renombrado = prompt("Nombre nueva carpeta:");
-        if (renombrado != null) {
-            var tqxhr = $.ajax({
-                url: 'function/gestorcrearcarpeta.php',
-                data: {
-                    action: renombrado
-                },
-                type: 'POST',
-                success: function(data) {
-                    if (data == "nowrite") {
-                        alert("No hay permisos de escritura");
-                    } else if (data == "carpyaexiste") {
-                        alert("La carpeta ya existe");
-                    } else if (data == "norenom") {
-                        alert("Renombre no válido");
-                    } else if (data == "novalido") {
-                        alert("Nombre no válido");
-                    } else if (data == "OK") {
-                        location.reload();
-                    }
-                }
-            });
-        }
-    });
-
-    $("#bcopiar").click(function() {
-        var arrayseleccion = new Array();
-        var elindice = 0;
-        var checkseleccionados = document.getElementsByClassName('laseleccion');
-        for (var i = 0; i < checkseleccionados.length; i++) {
-            if (checkseleccionados[i].checked == true) {
-                arrayseleccion[elindice] = checkseleccionados[i].value;
-                elindice = elindice + 1;
-            }
-        }
-
-        if (arrayseleccion == "") {
-            alert("No has seleccionado ningún elemento");
-        } else {
-            var tqxhr = $.ajax({
-                url: 'function/gestorcopiarfiles.php',
-                data: {
-                    action: arrayseleccion
-                },
-                type: 'POST',
-                success: function(data) {
-                    if (data == "nocopy") {
-                        alert("Nada que copiar");
-                    } else if (data == "noexiste") {
-                        alert("Hay archivos que no existen");
-                        location.reload();
-                    } else if (data == "OK") {
-                        location.reload();
-                    }
-
-                }
-            });
-        }
-    });
-
-    $("#bpegar").click(function() {
-        var eleccion = confirm("¡CONFIRMAR ACCION!\n\nEn caso de existir un archivo con el mismo nombre se sobrescribirá.\n\n¿Seguro que quieres continuar?");
-        if (eleccion == true) {
-            var tqxhr = $.ajax({
-                url: 'function/gestorpegarfiles.php',
-                data: {
-                    action: 'ok'
-                },
-                type: 'POST',
-                success: function(data) {
-                    if (data == "nocopy") {
-                        alert("Nada que pegar");
-                    } else if (data == "noexiste") {
-                        alert("Se cancela el pegado, el archivo no existe");
-                    } else if (data == "nowrite") {
-                        alert("La ruta a pegar no tiene permisos de escritura");
-                    } else if (data == "OK") {
-                        location.reload();
-                    }
-                }
-            });
-        }
-    });
-
-    $("#beliminarseleccion").click(function() {
-        var arrayseleccion = new Array();
-        var elindice = 0;
-        var checkseleccionados = document.getElementsByClassName('laseleccion');
-
-        for (var i = 0; i < checkseleccionados.length; i++) {
-            if (checkseleccionados[i].checked == true) {
-                arrayseleccion[elindice] = checkseleccionados[i].value;
-                elindice = elindice + 1;
-            }
-        }
-
-        if (arrayseleccion == "") {
-            alert("No has seleccionado ningún elemento");
-        } else {
-            var eleccion = confirm("¡ELIMINAR CONFIRMAR ACCIÓN!\n\n¡Vas a eliminar las carpetas o archivos seleccionados!\n\n¿Seguro que quieres continuar?");
-            if (eleccion == true) {
+    if (document.getElementById('bnnuevacarpeta') != null) {
+        $("#bnnuevacarpeta").click(function() {
+            var renombrado = prompt("Nombre nueva carpeta:");
+            if (renombrado != null) {
                 var tqxhr = $.ajax({
-                    url: 'function/gestorborrarmultiple.php',
+                    url: 'function/gestorcrearcarpeta.php',
+                    data: {
+                        action: renombrado
+                    },
+                    type: 'POST',
+                    success: function(data) {
+                        if (data == "nowrite") {
+                            alert("No hay permisos de escritura");
+                        } else if (data == "carpyaexiste") {
+                            alert("La carpeta ya existe");
+                        } else if (data == "norenom") {
+                            alert("Renombre no válido");
+                        } else if (data == "novalido") {
+                            alert("Nombre no válido");
+                        } else if (data == "OK") {
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    if (document.getElementById('bcopiar') != null) {
+        $("#bcopiar").click(function() {
+            var arrayseleccion = new Array();
+            var elindice = 0;
+            var checkseleccionados = document.getElementsByClassName('laseleccion');
+            for (var i = 0; i < checkseleccionados.length; i++) {
+                if (checkseleccionados[i].checked == true) {
+                    arrayseleccion[elindice] = checkseleccionados[i].value;
+                    elindice = elindice + 1;
+                }
+            }
+
+            if (arrayseleccion == "") {
+                alert("No has seleccionado ningún elemento");
+            } else {
+                var tqxhr = $.ajax({
+                    url: 'function/gestorcopiarfiles.php',
                     data: {
                         action: arrayseleccion
                     },
                     type: 'POST',
                     success: function(data) {
                         if (data == "nocopy") {
-                            alert("Nada que borrar");
-                        } else if (data == "rutacambiada") {
-                            alert("Ruta no válida");
-                        } else if (data == "novalido") {
-                            alert("Ruta no válida");
+                            alert("Nada que copiar");
                         } else if (data == "noexiste") {
                             alert("Hay archivos que no existen");
                             location.reload();
-                        } else if (data == "nowrite") {
-                            alert("Hay archivos sin permisos de escritura");
+                        } else if (data == "nopermenter") {
+                            alert("Hay carpetas que no tienen permiso de ejecucion/enter");
                         } else if (data == "OK") {
                             location.reload();
                         }
@@ -524,25 +517,113 @@ $(document).ready(function() {
                     }
                 });
             }
-        }
-    });
+        });
+    }
 
-    $("#bselectall").click(function() {
-        var checkseleccionados = document.getElementsByClassName('laseleccion');
-        for (var i = 0; i < checkseleccionados.length; i++) {
-            checkseleccionados[i].checked = true;
-        }
-    });
+    if (document.getElementById('bpegar') != null) {
+        $("#bpegar").click(function() {
+            var eleccion = confirm("¡CONFIRMAR ACCION!\n\nEn caso de existir un archivo con el mismo nombre se sobrescribirá.\n\n¿Seguro que quieres continuar?");
+            if (eleccion == true) {
+                if (document.getElementById('gifloading') != null) {
+                    document.getElementById("gifloading").style.visibility = "visible";
+                }
+                var tqxhr = $.ajax({
+                    url: 'function/gestorpegarfiles.php',
+                    data: {
+                        action: 'ok'
+                    },
+                    type: 'POST',
+                    success: function(data) {
+                        if (document.getElementById('gifloading') != null) {
+                            document.getElementById("gifloading").style.visibility = "hidden";
+                        }
 
-    $("#bunselectall").click(function() {
-        var checkseleccionados = document.getElementsByClassName('laseleccion');
-        for (var i = 0; i < checkseleccionados.length; i++) {
-            checkseleccionados[i].checked = false;
-        }
-    });
+                        if (data == "nocopy") {
+                            alert("Nada que pegar");
+                        } else if (data == "noexiste") {
+                            alert("Se cancela el pegado, el archivo no existe");
+                        } else if (data == "nowrite") {
+                            alert("La ruta a pegar no tiene permisos de escritura");
+                        } else if (data == "OK") {
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    if (document.getElementById('beliminarseleccion') != null) {
+        $("#beliminarseleccion").click(function() {
+            var arrayseleccion = new Array();
+            var elindice = 0;
+            var checkseleccionados = document.getElementsByClassName('laseleccion');
+
+            for (var i = 0; i < checkseleccionados.length; i++) {
+                if (checkseleccionados[i].checked == true) {
+                    arrayseleccion[elindice] = checkseleccionados[i].value;
+                    elindice = elindice + 1;
+                }
+            }
+
+            if (arrayseleccion == "") {
+                alert("No has seleccionado ningún elemento");
+            } else {
+                var eleccion = confirm("¡ELIMINAR CONFIRMAR ACCIÓN!\n\n¡Vas a eliminar las carpetas o archivos seleccionados!\n\n¿Seguro que quieres continuar?");
+                if (eleccion == true) {
+                    var tqxhr = $.ajax({
+                        url: 'function/gestorborrarmultiple.php',
+                        data: {
+                            action: arrayseleccion
+                        },
+                        type: 'POST',
+                        success: function(data) {
+                            if (data == "nocopy") {
+                                alert("Nada que borrar");
+                            } else if (data == "rutacambiada") {
+                                alert("Ruta no válida");
+                            } else if (data == "novalido") {
+                                alert("Ruta no válida");
+                            } else if (data == "noexiste") {
+                                alert("Hay archivos que no existen");
+                                location.reload();
+                            } else if (data == "nowrite") {
+                                alert("Hay archivos sin permisos de escritura");
+                            } else if (data == "nopermenter") {
+                                alert("Hay carpetas sin permiso de ejecucion/enter en la carpeta");
+                            } else if (data == "OK") {
+                                location.reload();
+                            }
+
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    if (document.getElementById('bselectall') != null) {
+        $("#bselectall").click(function() {
+            var checkseleccionados = document.getElementsByClassName('laseleccion');
+            for (var i = 0; i < checkseleccionados.length; i++) {
+                checkseleccionados[i].checked = true;
+            }
+        });
+    }
+
+    if (document.getElementById('bunselectall') != null) {
+        $("#bunselectall").click(function() {
+            var checkseleccionados = document.getElementsByClassName('laseleccion');
+            for (var i = 0; i < checkseleccionados.length; i++) {
+                checkseleccionados[i].checked = false;
+            }
+        });
+    }
 
     $("#form").on('submit', (function(e) {
-        document.getElementById("gifloading").style.visibility = "visible";
+        if (document.getElementById('gifloading') != null) {
+            document.getElementById("gifloading").style.visibility = "visible";
+        }
         e.preventDefault();
         $.ajax({
             url: "function/gestoruploadfile.php",
@@ -557,7 +638,9 @@ $(document).ready(function() {
                     alert(data);
                 }
 
-                document.getElementById("gifloading").style.visibility = "hidden";
+                if (document.getElementById('gifloading') != null) {
+                    document.getElementById("gifloading").style.visibility = "hidden";
+                }
 
                 if (data == "nowrite") {
                     document.getElementById("textouploadretorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta no tiene permisos de escritura.</div>";

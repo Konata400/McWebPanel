@@ -38,61 +38,70 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivoscopiar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivoscopiar'] == 1) {
 
-        $copiados = array();
-        $getpost = "";
-        $retorno = "";
-        $elerror = 0;
-        $ejecucion = "";
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-        $getpost = test_input($_POST['action']);
+            $copiados = array();
+            $getpost = "";
+            $retorno = "";
+            $elerror = 0;
+            $ejecucion = "";
 
-        if ($getpost != "ok") {
-            $elerror = 1;
-        } else {
-            $copiados = $_SESSION['COPIARFILES'];
-        }
+            $getpost = test_input($_POST['action']);
 
-        //COMPROBAR SI ESTA VACIO
-        if ($elerror == 0) {
-            if ($copiados == "") {
-                $retorno = "nocopy";
+            if ($getpost != "ok") {
                 $elerror = 1;
+            } else {
+                $copiados = $_SESSION['COPIARFILES'];
             }
-        }
 
-        //COMPROVAR QUE EXISTAN TODOS
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($copiados); $a++) {
-                clearstatcache();
-                if (!file_exists($copiados[$a])) {
-                    $retorno = "noexiste";
+            //COMPROBAR SI ESTA VACIO
+            if ($elerror == 0) {
+                if ($copiados == "") {
+                    $retorno = "nocopy";
                     $elerror = 1;
                 }
             }
-        }
 
-        //MIRAR SI LA CARPETA DONDE SE COPIARAN TIENE PERMISOS DE ESCRITURA
-        if ($elerror == 0) {
-            clearstatcache();
-            if (!is_writable($_SESSION['RUTACTUAL'])) {
-                $retorno = "nowrite";
-                $elerror = 1;
-            }
-        }
-
-        //PEGAR
-        if ($elerror == 0) {
-            for ($b = 0; $b < count($copiados); $b++) {
-                $ejecucion = "cp -r '" . $copiados[$b] . "' " . $_SESSION['RUTACTUAL'];
-                shell_exec($ejecucion);
+            //COMPROVAR QUE EXISTAN TODOS
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($copiados); $a++) {
+                    clearstatcache();
+                    if (!file_exists($copiados[$a])) {
+                        $retorno = "noexiste";
+                        $elerror = 1;
+                    }
+                }
             }
 
-            $retorno = "OK";
-        }
+            //MIRAR SI LA CARPETA DONDE SE COPIARAN TIENE PERMISOS DE ESCRITURA
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!is_writable($_SESSION['RUTACTUAL'])) {
+                    $retorno = "nowrite";
+                    $elerror = 1;
+                }
+            }
 
-        $_SESSION['COPIARFILES'] = "0";
-        echo $retorno;
+            //PEGAR
+            if ($elerror == 0) {
+                for ($b = 0; $b < count($copiados); $b++) {
+                    $ejecucion = "cp -r '" . $copiados[$b] . "' " . $_SESSION['RUTACTUAL'];
+                    shell_exec($ejecucion);
+                }
+
+                //PERFMISOS FTP
+                $permcomando = "cd '" . $_SESSION['RUTACTUAL'] . "' && find . -type d -print0 | xargs -0 -I {} chmod 775 {}";
+                exec($permcomando);
+                $permcomando = "cd '" . $_SESSION['RUTACTUAL'] . "' && find . -type f -print0 | xargs -0 -I {} chmod 664 {}";
+                exec($permcomando);
+
+                $retorno = "OK";
+            }
+
+            $_SESSION['COPIARFILES'] = "0";
+            echo $retorno;
+        }
     }
 }

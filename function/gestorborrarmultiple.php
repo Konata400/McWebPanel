@@ -38,113 +38,130 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivosborrar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivosborrar'] == 1) {
 
-        function delete_directory($dirname)
-        {
-            if (is_dir($dirname))
-                $dir_handle = opendir($dirname);
-            if (!$dir_handle)
-                return false;
-            while ($file = readdir($dir_handle)) {
-                if ($file != "." && $file != "..") {
-                    if (!is_dir($dirname . "/" . $file))
-                        unlink($dirname . "/" . $file);
-                    else
-                        delete_directory($dirname . '/' . $file);
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
+
+            function delete_directory($dirname)
+            {
+                if (is_dir($dirname))
+                    $dir_handle = opendir($dirname);
+                if (!$dir_handle)
+                    return false;
+                while ($file = readdir($dir_handle)) {
+                    if ($file != "." && $file != "..") {
+                        if (!is_dir($dirname . "/" . $file))
+                            unlink($dirname . "/" . $file);
+                        else
+                            delete_directory($dirname . '/' . $file);
+                    }
                 }
+                closedir($dir_handle);
+                rmdir($dirname);
+                return true;
             }
-            closedir($dir_handle);
-            rmdir($dirname);
-            return true;
-        }
 
-        $archivos = "";
-        $retorno = "";
-        $elerror = 0;
-        $test = 0;
+            $archivos = "";
+            $retorno = "";
+            $elerror = 0;
+            $test = 0;
 
-        $archivos = $_POST['action'];
+            $archivos = $_POST['action'];
 
-        //COMPROBAR SI ESTA VACIO
-        if ($elerror == 0) {
-            if ($archivos == "") {
-                $retorno = "nocopy";
-                $elerror = 1;
-            }
-        }
-
-        //AÑADIR RUTA ACTUAL AL ARCHIVO
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($archivos); $a++) {
-                $archivos[$a] = $_SESSION['RUTACTUAL'] . "/" . $archivos[$a];
-            }
-        }
-
-        //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($archivos); $a++) {
-                if ($_SESSION['RUTALIMITE'] != substr($archivos[$a], 0, strlen($_SESSION['RUTALIMITE']))) {
-                    $retorno = "rutacambiada";
+            //COMPROBAR SI ESTA VACIO
+            if ($elerror == 0) {
+                if ($archivos == "") {
+                    $retorno = "nocopy";
                     $elerror = 1;
                 }
             }
-        }
 
+            //AÑADIR RUTA ACTUAL AL ARCHIVO
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($archivos); $a++) {
+                    $archivos[$a] = $_SESSION['RUTACTUAL'] . "/" . $archivos[$a];
+                }
+            }
 
-        //COMPOBAR SI HAY ".." "..."
-        if ($elerror == 0) {
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
-
-            for ($a = 0; $a < count($archivos); $a++) {
-
-                for ($i = 0; $i < count($verificar); $i++) {
-
-                    $test = substr_count($archivos[$a], $verificar[$i]);
-
-                    if ($test >= 1) {
-                        $retorno = "novalido";
+            //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($archivos); $a++) {
+                    if ($_SESSION['RUTALIMITE'] != substr($archivos[$a], 0, strlen($_SESSION['RUTALIMITE']))) {
+                        $retorno = "rutacambiada";
                         $elerror = 1;
                     }
                 }
             }
-        }
 
-        //COMPROVAR QUE EXISTAN TODOS
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($archivos); $a++) {
-                clearstatcache();
-                if (!file_exists($archivos[$a])) {
-                    $retorno = "noexiste";
-                    $elerror = 1;
+
+            //COMPOBAR SI HAY ".." "..."
+            if ($elerror == 0) {
+                $verificar = array('..', '...', '~', '../', './', '&&');
+
+                for ($a = 0; $a < count($archivos); $a++) {
+
+                    for ($i = 0; $i < count($verificar); $i++) {
+
+                        $test = substr_count($archivos[$a], $verificar[$i]);
+
+                        if ($test >= 1) {
+                            $retorno = "novalido";
+                            $elerror = 1;
+                        }
+                    }
                 }
             }
-        }
 
-        //COMPROVAR SI SE PUEDEN ESCRIVIR
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($archivos); $a++) {
-                clearstatcache();
-                if (!is_writable($archivos[$a])) {
-                    $retorno = "nowrite";
-                    $elerror = 1;
+            //COMPROVAR QUE EXISTAN TODOS
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($archivos); $a++) {
+                    clearstatcache();
+                    if (!file_exists($archivos[$a])) {
+                        $retorno = "noexiste";
+                        $elerror = 1;
+                    }
                 }
             }
-        }
 
-        //ELIMINAR ARCHIVOS Y CARPETAS
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($archivos); $a++) {
-                clearstatcache();
-                if (is_dir($archivos[$a])) {
-                    delete_directory($archivos[$a]);
-                } else {
-                    unlink($archivos[$a]);
+            //COMPROVAR SI SE PUEDEN ESCRIVIR
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($archivos); $a++) {
+                    clearstatcache();
+                    if (!is_writable($archivos[$a])) {
+                        $retorno = "nowrite";
+                        $elerror = 1;
+                    }
                 }
             }
-            $retorno = "OK";
-        }
 
-        echo $retorno;
+            //COMPROVAR SI SE PUEDEN ENTER/EJECUTAR
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($archivos); $a++) {
+                    clearstatcache();
+                    if (is_dir($archivos[$a])) {
+                        clearstatcache();
+                        if (!is_executable($archivos[$a])) {
+                            $retorno = "nopermenter";
+                            $elerror = 1;
+                        }
+                    }
+                }
+            }
+
+            //ELIMINAR ARCHIVOS Y CARPETAS
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($archivos); $a++) {
+                    clearstatcache();
+                    if (is_dir($archivos[$a])) {
+                        delete_directory($archivos[$a]);
+                    } else {
+                        unlink($archivos[$a]);
+                    }
+                }
+                $retorno = "OK";
+            }
+
+            echo $retorno;
+        }
     }
 }

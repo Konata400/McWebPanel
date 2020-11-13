@@ -114,6 +114,16 @@ if ($elerror == 0) {
                                                                 $paraejecutar = "stop";
                                                                 $laejecucion = 'screen -S ' . $elnombrescreen . ' -X stuff "' . $paraejecutar . '\\015"';
                                                                 shell_exec($laejecucion);
+
+                                                                //PERFMISOS FTP
+                                                                $dirconfig = $RUTAPRINCIPAL;
+                                                                $dirconfig = trim($dirconfig);
+                                                                $dirconfig .= "/" . $elnombrescreen;
+
+                                                                $permcomando = "cd '" . $dirconfig . "' && find . -type d -print0 | xargs -0 -I {} chmod 775 {}";
+                                                                exec($permcomando);
+                                                                $permcomando = "cd '" . $dirconfig . "' && find . -type f -print0 | xargs -0 -I {} chmod 664 {}";
+                                                                exec($permcomando);
                                                             }
 
                                                             break;
@@ -145,9 +155,74 @@ if ($elerror == 0) {
                                                                 $rutacarpetamine = trim($rutacarpetamine);
                                                                 $rutacarpetamine .= "/" . $reccarpmine;
 
-                                                                if (!file_exists($rutacarpetamine)) {
-                                                                    $retorno = "no existe carpeta";
-                                                                    $elerror = 1;
+                                                                //VARIABLE RUTA CARPETA CONFIG
+                                                                $rutacarpetaconfig = $RUTAPRINCIPAL;
+                                                                $rutacarpetaconfig = trim($rutacarpetaconfig);
+                                                                $rutacarpetaconfig .= "/config";
+
+                                                                //VARIABLE RUTA SERVERPROPERTIES.TXT
+                                                                $rutaconfigproperties = $rutacarpetaconfig . "/serverproperties.txt";
+
+                                                                //VERIFICAR CARPETA MINECRAFT
+                                                                if ($elerror == 0) {
+                                                                    clearstatcache();
+                                                                    if (!file_exists($rutacarpetamine)) {
+                                                                        $elerror = 1;
+                                                                        $retorno = "noexistecarpetaminecraft";
+                                                                    }
+                                                                }
+
+                                                                //VERIFICAR SI HAY PERMISOS DE LECTURA EN EL SERVIDOR MINECRAFT
+                                                                if ($elerror == 0) {
+                                                                    clearstatcache();
+                                                                    if (!is_readable($rutacarpetamine)) {
+                                                                        $elerror = 1;
+                                                                        $retorno = "nolecturamine";
+                                                                    }
+                                                                }
+
+                                                                //VERIFICAR SI HAY ESCRITURA EN EL SERVIDOR MINECRAFT
+                                                                if ($elerror == 0) {
+                                                                    clearstatcache();
+                                                                    if (!is_writable($rutacarpetamine)) {
+                                                                        $elerror = 1;
+                                                                        $retorno = "noescritura";
+                                                                    }
+                                                                }
+
+                                                                //VERIFICAR SI HAY PERMISOS DE EJECUCION EN EL SERVIDOR MINECRAFT
+                                                                if ($elerror == 0) {
+                                                                    clearstatcache();
+                                                                    if (!is_executable($rutacarpetamine)) {
+                                                                        $elerror = 1;
+                                                                        $retorno = "noejecutable";
+                                                                    }
+                                                                }
+
+                                                                //VERIFICAR SI HAY ESCRITURA EN CARPETA CONFIG
+                                                                if ($elerror == 0) {
+                                                                    clearstatcache();
+                                                                    if (!is_writable($rutacarpetaconfig)) {
+                                                                        $elerror = 1;
+                                                                        $retorno = "noconfigwrite";
+                                                                    }
+                                                                }
+
+                                                                //VERIFICAR SI EXISTE ARCHIVO /CONFIG/SERVERPROPERTIES
+                                                                if ($elerror == 0) {
+                                                                    if (!file_exists($rutaconfigproperties)) {
+                                                                        $elerror = 1;
+                                                                        $retorno = "noserverpropertiestxt";
+                                                                    }
+                                                                }
+
+                                                                //VERIFICAR SI HAY ESCRITURA EN ARCHIVO /CONFIG/SERVERPROPERTIES
+                                                                if ($elerror == 0) {
+                                                                    clearstatcache();
+                                                                    if (!is_writable($rutaconfigproperties)) {
+                                                                        $elerror = 1;
+                                                                        $retorno = "noconfservpropergwrite";
+                                                                    }
                                                                 }
 
                                                                 //VERIFICAR EULA
@@ -173,51 +248,47 @@ if ($elerror == 0) {
                                                                     }
                                                                 }
 
+                                                                //CREAR EULA FORZADO
+                                                                if ($elerror == 0) {
+                                                                    if ($receulaminecraft == "1") {
+                                                                        $rutaescrivir = $rutacarpetamine;
+                                                                        $rutaescrivir .= "/eula.txt";
+
+                                                                        clearstatcache();
+                                                                        if (file_exists($rutaescrivir)) {
+                                                                            clearstatcache();
+                                                                            if (is_writable($rutaconfigproperties)) {
+                                                                                $file = fopen($rutaescrivir, "w");
+                                                                                fwrite($file, "eula=true" . PHP_EOL);
+                                                                                fclose($file);
+                                                                            } else {
+                                                                                $retorno = "eulanowrite";
+                                                                                $elerror = 1;
+                                                                            }
+                                                                        } else {
+                                                                            $file = fopen($rutaescrivir, "w");
+                                                                            fwrite($file, "eula=true" . PHP_EOL);
+                                                                            fclose($file);
+                                                                        }
+                                                                    }
+                                                                }
+
                                                                 //VERIFICAR SI HAY NOMBRE.JAR
                                                                 if ($elerror == 0) {
                                                                     if ($recarchivojar == "") {
-                                                                        $retorno = "sin nombre jar";
                                                                         $elerror = 1;
-                                                                    }
-                                                                }
-
-                                                                //VERIFICAR SI HAY PERMISOS DE LECTURA EN EL SERVIDOR MINECRAFT
-                                                                if ($elerror == 0) {
-                                                                    if (!is_readable($rutacarpetamine)) {
-                                                                        $retorno = "no ruta lectura mine";
-                                                                        $elerror = 1;
-                                                                    }
-                                                                }
-
-                                                                //VERIFICAR SI HAY PERMISOS DE EJECUCION EN EL SERVIDOR MINECRAFT
-                                                                if ($elerror == 0) {
-                                                                    if (!is_executable($rutacarpetamine)) {
-                                                                        $retorno = "no ruta ejecucion mine";
-                                                                        $elerror = 1;
+                                                                        $retorno = "noconfjar";
                                                                     }
                                                                 }
 
                                                                 //VERIFICAR SI EXISTE REALMENTE
                                                                 if ($elerror == 0) {
-                                                                    $rutacarpetamine = $RUTAPRINCIPAL;
-                                                                    $rutacarpetamine = trim($rutacarpetamine);
-                                                                    $rutacarpetamine .= "/" . $reccarpmine . "/" . $recarchivojar;
+                                                                    $rutajar = $rutacarpetamine . "/" . $reccarpmine . "/" . $recarchivojar;
 
+                                                                    clearstatcache();
                                                                     if (!file_exists($rutacarpetamine)) {
-                                                                        $retorno = "no existe realmente el jar";
                                                                         $elerror = 1;
-                                                                    }
-                                                                }
-
-                                                                //VERIFICAR SI HAY ESCRITURA
-                                                                if ($elerror == 0) {
-                                                                    $rutacarpetamine = $RUTAPRINCIPAL;
-                                                                    $rutacarpetamine = trim($rutacarpetamine);
-                                                                    $rutacarpetamine .= "/" . $reccarpmine;
-
-                                                                    if (!is_writable($rutacarpetamine)) {
-                                                                        $retorno = "no hay escritura mine";
-                                                                        $elerror = 1;
+                                                                        $retorno = "noexistejar";
                                                                     }
                                                                 }
 
@@ -241,33 +312,46 @@ if ($elerror == 0) {
                                                                     $rutatemp .= "/config/serverproperties.tmp";
                                                                     $rutafinal .= "/" . $reccarpmine . "/server.properties";
 
-                                                                    if (file_exists($rutacarpetamine)) {
-                                                                        $gestor = @fopen($rutacarpetamine, "r");
-                                                                        $file = fopen($rutatemp, "w");
-                                                                        if ($gestor) {
-                                                                            while (($búfer = fgets($gestor, 4096)) !== false) {
-                                                                                $str = $búfer;
-                                                                                $array = explode("=", $str);
-                                                                                if ($array[0] == "server-port") {
-                                                                                    fwrite($file, 'server-port=' . $recpuerto . PHP_EOL);
-                                                                                } else {
-                                                                                    fwrite($file, $búfer);
-                                                                                }
-                                                                            }
+                                                                    $gestor = @fopen($rutacarpetamine, "r");
+                                                                    $file = fopen($rutatemp, "w");
 
-                                                                            if (!feof($gestor)) {
-                                                                                $elerror = 1;
-                                                                            }
-
-                                                                            fclose($gestor);
-                                                                            fclose($file);
-                                                                            unlink($rutacarpetamine);
-                                                                            rename($rutatemp, $rutacarpetamine);
-                                                                            copy($rutacarpetamine, $rutafinal);
+                                                                    while (($búfer = fgets($gestor, 4096)) !== false) {
+                                                                        $str = $búfer;
+                                                                        $array = explode("=", $str);
+                                                                        if ($array[0] == "server-port") {
+                                                                            fwrite($file, 'server-port=' . $recpuerto . PHP_EOL);
+                                                                        } else {
+                                                                            fwrite($file, $búfer);
                                                                         }
-                                                                    } else {
-                                                                        $retorno = "no existe carpeta mine tutu";
+                                                                    }
+
+                                                                    if (!feof($gestor)) {
                                                                         $elerror = 1;
+                                                                    }
+
+                                                                    fclose($gestor);
+                                                                    fclose($file);
+                                                                    unlink($rutacarpetamine);
+                                                                    rename($rutatemp, $rutacarpetamine);
+                                                                    copy($rutacarpetamine, $rutafinal);
+                                                                }
+
+                                                                //INSERTAR SERVER-ICON EN CASO QUE NO EXISTA
+                                                                if ($elerror == 0) {
+                                                                    $rutacarpetamine = $RUTAPRINCIPAL;
+                                                                    $rutacarpetamine = trim($rutacarpetamine);
+
+                                                                    $rutaiconoimg = $rutacarpetamine . "/img/server-icon.png";
+                                                                    $rutaiconofinal = $rutacarpetamine . "/" . $reccarpmine . "/server-icon.png";
+                                                                    $rutacarpetamine .= "/" . $reccarpmine;
+
+                                                                    //COMPROVAR SI EXISTE EN CARPETA IMG Y COPIARLA EN CASO QUE EL SERVIDOR NO LA TENGA
+                                                                    clearstatcache();
+                                                                    if (file_exists($rutaiconoimg)) {
+                                                                        clearstatcache();
+                                                                        if (!file_exists($rutaiconofinal)) {
+                                                                            copy($rutaiconoimg, $rutaiconofinal);
+                                                                        }
                                                                     }
                                                                 }
 
@@ -281,13 +365,13 @@ if ($elerror == 0) {
                                                                     $rutacarpetamine .= "/" . $reccarpmine . "/" . $recarchivojar;
 
                                                                     if ($rectiposerv == "vanilla") {
-                                                                        $comandoserver .= "cd " . $RUTAPRINCIPAL . " && cd " . $reccarpmine . " && screen -dmS " . $reccarpmine . " java -Xms1G -Xmx" . $recram . "G -jar '" . $rutacarpetamine . "' nogui";
+                                                                        $comandoserver .= "cd " . $RUTAPRINCIPAL . " && cd " . $reccarpmine . " && umask 002 && screen -dmS " . $reccarpmine . " java -Xms1G -Xmx" . $recram . "G -jar '" . $rutacarpetamine . "' nogui";
                                                                     } elseif ($rectiposerv == "spigot") {
-                                                                        $comandoserver .= "cd " . $RUTAPRINCIPAL . " && cd " . $reccarpmine . " && screen -dmS " . $reccarpmine . " java -Xms1G -Xmx" . $recram . "G -XX:+UseConcMarkSweepGC -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF8 -jar '" . $rutacarpetamine . "' nogui -nojline --log-strip-color";
+                                                                        $comandoserver .= "cd " . $RUTAPRINCIPAL . " && cd " . $reccarpmine . " && umask 002 && screen -dmS " . $reccarpmine . " java -Xms1G -Xmx" . $recram . "G -XX:+UseConcMarkSweepGC -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF8 -jar '" . $rutacarpetamine . "' nogui -nojline --log-strip-color";
                                                                     } elseif ($rectiposerv == "paper") {
-                                                                        $comandoserver .= "cd " . $RUTAPRINCIPAL . " && cd " . $reccarpmine . " && screen -dmS " . $reccarpmine . " java -Xms1G -Xmx" . $recram . "G -jar '" . $rutacarpetamine . "' nogui";
+                                                                        $comandoserver .= "cd " . $RUTAPRINCIPAL . " && cd " . $reccarpmine . " && umask 002 && screen -dmS " . $reccarpmine . " java -Xms1G -Xmx" . $recram . "G -jar '" . $rutacarpetamine . "' nogui";
                                                                     } elseif ($rectiposerv == "otros") {
-                                                                        $comandoserver .= "cd " . $RUTAPRINCIPAL . " && cd " . $reccarpmine . " && screen -dmS " . $reccarpmine . " java -Xms1G -Xmx" . $recram . "G -jar '" . $rutacarpetamine . "' nogui";
+                                                                        $comandoserver .= "cd " . $RUTAPRINCIPAL . " && cd " . $reccarpmine . " && umask 002 && screen -dmS " . $reccarpmine . " java -Xms1G -Xmx" . $recram . "G -jar '" . $rutacarpetamine . "' nogui";
                                                                     }
                                                                     $elpid = shell_exec($comandoserver);
                                                                 }
@@ -315,7 +399,7 @@ if ($elerror == 0) {
                                                                     if (is_readable($rutaminelimpia)) {
                                                                         $rutaarchivo .= "/" . $reccarpmine . "/ .";
                                                                         $dirconfig = $dirconfig . "/" . $archivo . "-";
-                                                                        $t = time();
+                                                                        $t = date("Y-m-d-G:i:s");
                                                                         $elcomando = "tar -czvf " . $dirconfig . $t . ".tar.gz -C " . $rutaarchivo;
                                                                         if (is_executable($rutaminelimpia)) {
                                                                             exec($elcomando, $out, $oky);
@@ -338,7 +422,7 @@ if ($elerror == 0) {
                                                         case "acc4":
                                                             //ENVIAR COMANDO
 
-                                                            $paraejecutar = $arrayobtenido[$i]['comando'];
+                                                            $paraejecutar = addslashes($arrayobtenido[$i]['comando']);
 
                                                             //OBTENER PID SABER SI ESTA EN EJECUCION
                                                             $elcomando = "";
@@ -348,8 +432,21 @@ if ($elerror == 0) {
 
                                                             //SI ESTA EN EJECUCION ENVIAR COMANDO
                                                             if (!$elpid == "") {
-                                                                $laejecucion = 'screen -S ' . $elnombrescreen . ' -X stuff "' . $paraejecutar . '\\015"';
+                                                                $laejecucion = 'screen -S ' . $elnombrescreen . ' -X stuff "' . trim($paraejecutar) . '^M"';
+
                                                                 shell_exec($laejecucion);
+
+                                                                //PERFMISOS FTP
+                                                                if (strtolower($paraejecutar) == "stop") {
+                                                                    $dirconfig = $RUTAPRINCIPAL;
+                                                                    $dirconfig = trim($dirconfig);
+                                                                    $dirconfig .= "/" . $elnombrescreen;
+
+                                                                    $permcomando = "cd '" . $dirconfig . "' && find . -type d -print0 | xargs -0 -I {} chmod 775 {}";
+                                                                    exec($permcomando);
+                                                                    $permcomando = "cd '" . $dirconfig . "' && find . -type f -print0 | xargs -0 -I {} chmod 664 {}";
+                                                                    exec($permcomando);
+                                                                }
                                                             }
 
                                                             break;

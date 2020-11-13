@@ -22,9 +22,9 @@ Copyright (C) 2020 Cristina Ibañez, Konata400
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="status.php">
         <div class="sidebar-brand-icon rotate-n-15">
-            <i class=""><img class="" src="img/icons/favicon-32x32.png" alt="mineminiicon" width="40" height="40"></i>
+            <img class="d-block mr-2" src="img/icons/favicon-32x32.png" alt="mineminiicon" width="40" height="40">
         </div>
-        <div class="sidebar-brand-text mx-3">
+        <div class="sidebar-brand-text">
             <?php
             $NAMESERVERMENU = CONFIGNOMBRESERVER;
             echo $NAMESERVERMENU;
@@ -49,73 +49,145 @@ Copyright (C) 2020 Cristina Ibañez, Konata400
         </a>
     </li>
 
-    <!-- Nav Item - Consola -->
-    <li class="nav-item menu-hover">
-        <a class="nav-link" href="consola.php">
-            <img class="d-block float-left mr-2" src="img/menu/consola.png" alt="consola">
-            <h6 class="text-light">Consola</h6>
-        </a>
-    </li>
+    <?php
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pconsolaread', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pconsolaread'] == 1) {
+    ?>
+        <!-- Nav Item - Consola -->
+        <li class="nav-item menu-hover">
+            <a class="nav-link" href="consola.php">
+                <img class="d-block float-left mr-2" src="img/menu/consola.png" alt="consola">
+                <h6 class="text-light">Consola</h6>
+            </a>
+        </li>
 
-    <!-- Linea -->
-    <hr class="sidebar-divider">
+    <?php
+    }
+    ?>
 
-    <!-- Encabezado -->
-    <div class="sidebar-heading text-light">Configuración</div>
+    <?php
+    //MOSTRAR O OCULTAR EL TEXTO DE LA SECCION CONFIGURACION
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pconfmine', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pconfmine'] == 1 || array_key_exists('pprogtareas', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pprogtareas'] == 1) {
+        //<!-- Linea -->
+        echo ('<hr class="sidebar-divider">');
+        //<!-- Encabezado -->
+        echo ('<div class="sidebar-heading text-light">Configuración</div>');
+    }
+    ?>
 
-    <!-- Nav Item - Minecraft -->
-    <li class="nav-item menu-hover">
-        <a class="nav-link" href="minecraft.php">
-            <img class="d-block float-left mr-2" src="img/menu/config.png" alt="confmine">
-            <h6 class="text-light">Config Minecraft</h6>
-        </a>
-    </li>
+    <?php
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pconfmine', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pconfmine'] == 1) {
+    ?>
+        <!-- Nav Item - Minecraft -->
+        <li class="nav-item menu-hover">
+            <a class="nav-link" href="minecraft.php">
+                <img class="d-block float-left mr-2" src="img/menu/config.png" alt="confmine">
+                <h6 class="text-light">Config Minecraft</h6>
+            </a>
+        </li>
 
-    <!-- Nav Item - Tareas -->
-    <li class="nav-item menu-hover">
-        <a class="nav-link" href="tareas.php">
-            <img class="d-block float-left mr-2" src="img/menu/tarea.png" alt="tarea">
-            <h6 class="text-light">Prog Tareas</h6>
-        </a>
-    </li>
+    <?php
+    }
+    ?>
 
-    <!-- Linea -->
-    <hr class="sidebar-divider">
+    <?php
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pprogtareas', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pprogtareas'] == 1) {
+    ?>
+        <!-- Nav Item - Tareas -->
+        <li class="nav-item menu-hover">
+            <a class="nav-link" href="tareas.php">
+                <img class="d-block float-left mr-2" src="img/menu/tarea.png" alt="tarea">
+                <h6 class="text-light">Prog Tareas</h6>
+            </a>
+        </li>
 
-    <!-- Encabezado -->
-    <div class="sidebar-heading text-light">Sistema</div>
+    <?php
+    }
+    ?>
 
-    <!-- Nav Item - System Config -->
-    <li class="nav-item menu-hover">
-        <a class="nav-link" href="sysconf.php">
-            <img class="d-block float-left mr-2" src="img/menu/sysconf.png" alt="sysconf">
-            <h6 class="text-light">System Config</h6>
-        </a>
-    </li>
 
-    <!-- Nav Item - Subir Server -->
-    <li class="nav-item menu-hover">
-        <a class="nav-link" href="subirserver.php">
-            <img class="d-block float-left mr-2" src="img/menu/subida.png" alt="subida">
-            <h6 class="text-light">Subir Servidor</h6>
-        </a>
-    </li>
+    <?php
+    //MOSTRAR O OCULTAR EL TEXTO DE LA SECCION SISTEMA
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('psystemconf', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconf'] == 1 || array_key_exists('psubirservidor', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psubirservidor'] == 1 || array_key_exists('pbackups', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pbackups'] == 1 || array_key_exists('pgestorarchivos', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivos'] == 1) {
+        //<!-- Linea -->
+        echo ('<hr class="sidebar-divider">');
+        //<!-- Encabezado -->
+        echo ('<div class="sidebar-heading text-light">Sistema</div>');
+    }
+    ?>
 
-    <!-- Nav Item - Backups -->
-    <li class="nav-item menu-hover">
-        <a class="nav-link" href="backups.php">
-            <img class="d-block float-left mr-2" src="img/menu/backup.png" alt="backup">
-            <h6 class="text-light">Backups</h6>
-        </a>
-    </li>
+    <?php
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('psystemconf', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psystemconf'] == 1) {
+    ?>
+        <!-- Nav Item - System Config -->
+        <li class="nav-item menu-hover">
+            <a class="nav-link" href="sysconf.php">
+                <img class="d-block float-left mr-2" src="img/menu/sysconf.png" alt="sysconf">
+                <h6 class="text-light">System Config</h6>
+            </a>
+        </li>
+    <?php
+    }
+    ?>
 
-    <!-- Nav Item - Gestor Archivos -->
-    <li class="nav-item menu-hover">
-        <a class="nav-link" href="gestorarchivos.php">
-            <img class="d-block float-left mr-2" src="img/menu/carpeta.png" alt="gestarch">
-            <h6 class="text-light">Gestor Archivos</h6>
-        </a>
-    </li>
+    <?php
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('psubirservidor', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psubirservidor'] == 1) {
+    ?>
+        <!-- Nav Item - Subir Server -->
+        <li class="nav-item menu-hover">
+            <a class="nav-link" href="subirserver.php">
+                <img class="d-block float-left mr-2" src="img/menu/subida.png" alt="subida">
+                <h6 class="text-light">Subir Servidor</h6>
+            </a>
+        </li>
+    <?php
+    }
+    ?>
+
+    <?php
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pbackups', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pbackups'] == 1) {
+    ?>
+        <!-- Nav Item - Backups -->
+        <li class="nav-item menu-hover">
+            <a class="nav-link" href="backups.php">
+                <img class="d-block float-left mr-2" src="img/menu/backup.png" alt="backup">
+                <h6 class="text-light">Backups</h6>
+            </a>
+        </li>
+    <?php
+    }
+    ?>
+
+    <?php
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivos', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivos'] == 1) {
+    ?>
+        <!-- Nav Item - Gestor Archivos -->
+        <li class="nav-item menu-hover">
+            <a class="nav-link" href="gestorarchivos.php">
+                <img class="d-block float-left mr-2" src="img/menu/carpeta.png" alt="gestarch">
+                <h6 class="text-light">Gestor Archivos</h6>
+            </a>
+        </li>
+    <?php
+    }
+    ?>
+
+    <?php
+    if (array_key_exists('rango', $_SESSION['CONFIGUSER'])) {
+        if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2) {
+    ?>
+
+            <!-- Nav Item - Gestor Usuarios -->
+            <li class="nav-item menu-hover">
+                <a class="nav-link" href="gestorusers.php">
+                    <img class="d-block float-left mr-2" src="img/menu/users.png" alt="gestusers">
+                    <h6 class="text-light">Gestor Usuarios</h6>
+                </a>
+            </li>
+
+    <?php
+        }
+    }
+    ?>
 
     <!-- Linea -->
     <hr class="sidebar-divider">
@@ -131,6 +203,6 @@ Copyright (C) 2020 Cristina Ibañez, Konata400
     <!-- Linea Final -->
     <hr class="sidebar-divider d-none d-md-block">
 
-    <p class ="text-light text-right pr-4 mini-ver">McWebAdmin<br>Ver 0.1 Develop</p>
+    <p class="text-light text-right pr-4 mini-ver">McWebAdmin<br>Ver 0.1 pre-release</p>
 
 </ul>

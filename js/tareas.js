@@ -18,89 +18,95 @@ Copyright (C) 2020 Cristina Ibañez, Konata400
 
 $(document).ready(function() {
 
-    var actdesbuttons = document.getElementsByClassName('actdes');
-    for (var i = 0; i < actdesbuttons.length; i++) {
-        actdesbuttons[i].addEventListener("click", function() {
-            var indexarray = String(this.value);
-            if (indexarray == 0) {
-                indexarray = 'CERO';
-            }
-            var jqxhr = $.ajax({
-                url: 'function/tareaactdes.php',
-                data: {
-                    action: indexarray
-                },
-                type: 'POST',
-                success: function(data) {
-                    var getdebug = 0;
-                    if (getdebug == 1) {
-                        alert(data);
-                    }
-                    if (data == "errarchnoconfig") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no existe.</div>";
-                    } else if (data == "errconfignoread") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no tiene permisos de lectura .</div>";
-                    } else if (data == "errconfignowrite") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no tiene permisos de escritura.</div>";
-                    } else if (data == "errjsonnoread") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: El archivo json no tiene permisos de lectura.</div>";
-                    } else if (data == "errjsonnowrite") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: Hay que introducir un comando.</div>";
-                    } else if (data == 'OK') {
-                        location.reload();
-                    }
-
-                },
-                error: function(errorThrown) {
-                    alert(errorThrown);
+    if (document.getElementsByClassName('actdes') != null) {
+        var actdesbuttons = document.getElementsByClassName('actdes');
+        for (var i = 0; i < actdesbuttons.length; i++) {
+            actdesbuttons[i].addEventListener("click", function() {
+                var indexarray = String(this.value);
+                if (indexarray == 0) {
+                    indexarray = 'CERO';
                 }
-            });
-        })
+                var jqxhr = $.ajax({
+                    url: 'function/tareaactdes.php',
+                    data: {
+                        action: indexarray
+                    },
+                    type: 'POST',
+                    success: function(data) {
+                        var getdebug = 0;
+                        if (getdebug == 1) {
+                            alert(data);
+                        }
+                        if (data == "errarchnoconfig") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no existe.</div>";
+                        } else if (data == "errconfignoread") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no tiene permisos de lectura .</div>";
+                        } else if (data == "errconfignowrite") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no tiene permisos de escritura.</div>";
+                        } else if (data == "errjsonnoread") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: El archivo json no tiene permisos de lectura.</div>";
+                        } else if (data == "errjsonnowrite") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: Hay que introducir un comando.</div>";
+                        } else if (data == 'OK') {
+                            location.reload();
+                        }
+
+                    },
+                    error: function(errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+            })
+        }
     }
 
-    var borrarbuttons = document.getElementsByClassName('borrar');
-    for (var i = 0; i < borrarbuttons.length; i++) {
-        borrarbuttons[i].addEventListener("click", function() {
-            var indexarray = String(this.value);
-            if (indexarray == 0) {
-                indexarray = 'CERO';
-            }
-            var jqxhr = $.ajax({
-                url: 'function/tareaborrar.php',
-                data: {
-                    action: indexarray
-                },
-                type: 'POST',
-                success: function(data) {
-                    var getdebug = 0;
-                    if (getdebug == 1) {
-                        alert(data);
-                    }
-                    if (data == "errarchnoconfig") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no existe.</div>";
-                    } else if (data == "errconfignoread") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no tiene permisos de lectura .</div>";
-                    } else if (data == "errconfignowrite") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no tiene permisos de escritura.</div>";
-                    } else if (data == "errjsonnoread") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: El archivo json no tiene permisos de lectura.</div>";
-                    } else if (data == "errjsonnowrite") {
-                        document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: Hay que introducir un comando.</div>";
-                    } else if (data == 'OK') {
-                        location.reload();
-                    }
-
-                },
-                error: function(errorThrown) {
-                    alert(errorThrown);
+    if (document.getElementsByClassName('borrar') != null) {
+        var borrarbuttons = document.getElementsByClassName('borrar');
+        for (var i = 0; i < borrarbuttons.length; i++) {
+            borrarbuttons[i].addEventListener("click", function() {
+                var indexarray = String(this.value);
+                if (indexarray == 0) {
+                    indexarray = 'CERO';
                 }
-            });
-        })
+                var jqxhr = $.ajax({
+                    url: 'function/tareaborrar.php',
+                    data: {
+                        action: indexarray
+                    },
+                    type: 'POST',
+                    success: function(data) {
+                        var getdebug = 0;
+                        if (getdebug == 1) {
+                            alert(data);
+                        }
+                        if (data == "errarchnoconfig") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no existe.</div>";
+                        } else if (data == "errconfignoread") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no tiene permisos de lectura .</div>";
+                        } else if (data == "errconfignowrite") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: La carpeta config no tiene permisos de escritura.</div>";
+                        } else if (data == "errjsonnoread") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: El archivo json no tiene permisos de lectura.</div>";
+                        } else if (data == "errjsonnowrite") {
+                            document.getElementById("textotarearetorno").innerHTML = "<div class='alert alert-danger' role='alert'>Error: Hay que introducir un comando.</div>";
+                        } else if (data == 'OK') {
+                            location.reload();
+                        }
+
+                    },
+                    error: function(errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+            })
+        }
     }
 
-    $("#anadirtarea").click(function() {
-        location.href = "nuevatarea.php";
-    });
+    if (document.getElementById('anadirtarea') != null) {
+        $("#anadirtarea").click(function() {
+            location.href = "nuevatarea.php";
+        });
+    }
 
     var mySessionTimer = setInterval(sessionTimer, 1000);
 

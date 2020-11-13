@@ -26,6 +26,7 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
     $_SESSION['VALIDADO'] = "NO";
     $_SESSION['KEYSECRETA'] = "0";
     header("location:index.php");
+    exit;
 }
 
 //VALIDAMOS SESSION SINO ERROR
@@ -38,7 +39,9 @@ $_SESSION = array();
 session_destroy();
 
 header("location:index.php");
+exit;
 }else {
     header("location:index.php");
+    exit;
 }
 ?>

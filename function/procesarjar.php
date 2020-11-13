@@ -39,140 +39,157 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_FILES['uploadedFile']) && $_FILES['uploadedFile']['error'] === UPLOAD_ERR_OK) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('psubirservidor', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['psubirservidor'] == 1) {
 
-        $retorno = "";
-        $elerror = 0;
-        $target_dir = "";
-        $target_file = "";
-        $tmp = "";
-        $archivo = "";
-        $test = 0;
+        if (isset($_FILES['uploadedFile']) && $_FILES['uploadedFile']['error'] === UPLOAD_ERR_OK) {
 
-        $fileName = "";
-        $fileNameCmps = "";
-        $fileExtension = "";
+            $retorno = "";
+            $elerror = 0;
+            $target_dir = "";
+            $target_file = "";
+            $tmp = "";
+            $archivo = "";
+            $test = 0;
 
-        $tmp = $_FILES['uploadedFile']['tmp_name'];
+            $fileName = "";
+            $fileNameCmps = "";
+            $fileExtension = "";
 
-        //COMPROVAR SI ES .JAR
-        if ($elerror == 0) {
-            $fileName = $_FILES['uploadedFile']['name'];
-            $fileNameCmps = explode(".", $fileName);
-            $fileExtension = strtolower(end($fileNameCmps));
+            $tmp = $_FILES['uploadedFile']['tmp_name'];
 
-            if (!$fileExtension == "jar") {
-                $retorno = "nojar";
-                $elerror = 1;
-            }
-        }
+            //COMPROVAR SI ES .JAR
+            if ($elerror == 0) {
+                $fileName = $_FILES['uploadedFile']['name'];
+                $fileNameCmps = explode(".", $fileName);
+                $fileExtension = strtolower(end($fileNameCmps));
 
-        //COMPROBAR SI ES REALMENTE ARCHIVO JAVA
-        if ($elerror == 0) {
-            $eltipoapplication = mime_content_type($_FILES["uploadedFile"]["tmp_name"]);
-
-            switch ($eltipoapplication) {
-                case "application/java-archive":
-                    $tipovalido = 1;
-                    break;
-                case "application/zip":
-                    $tipovalido = 1;
-                    break;
-            }
-
-            if ($tipovalido == 0) {
-                $retorno = "notipovalido";
-                $elerror = 1;
-            }
-        }
-
-        //COMPOBAR SI HAY ".." "..."
-        if ($elerror == 0) {
-
-            $verificar = array('..', '...', '/.', '~', '../', './', ';', ':', '>', '<', '/', '\\', '&&');
-
-            for ($i = 0; $i < count($verificar); $i++) {
-
-                $test = substr_count($fileName, $verificar[$i]);
-
-                if ($test >= 1) {
-                    $retorno = "novalidoname";
+                if (!$fileExtension == "jar") {
+                    $retorno = "nojar";
                     $elerror = 1;
                 }
             }
-        }
 
-        //SI HAY PERMISOS ESCRITURA EN RAIZ
-        if ($elerror == 0) {
-            $rutaraiz = dirname(getcwd()) . PHP_EOL;
-            $rutaraiz = trim($rutaraiz);
+            //COMPROBAR SI ES REALMENTE ARCHIVO JAVA
+            if ($elerror == 0) {
+                $eltipoapplication = mime_content_type($_FILES["uploadedFile"]["tmp_name"]);
 
-            if (!is_writable($rutaraiz)) {
-                $retorno = "nowriteraiz";
-                $elerror = 1;
-            }
-        }
+                switch ($eltipoapplication) {
+                    case "application/java-archive":
+                        $tipovalido = 1;
+                        break;
+                    case "application/zip":
+                        $tipovalido = 1;
+                        break;
+                }
 
-        //COMPROVAR SI EXISTE LA CARPETA MINECRAFT
-        if ($elerror == 0) {
-            $elnombredirectorio = CONFIGDIRECTORIO;
-            $rutacarpetamine = dirname(getcwd()) . PHP_EOL;
-            $rutacarpetamine = trim($rutacarpetamine);
-            $rutacarpetamine .= "/" . $elnombredirectorio;
-
-            if (!file_exists($rutacarpetamine)) {
-                //SI NO EXISTE, CREARLA
-                mkdir("$rutacarpetamine", 0700);
+                if ($tipovalido == 0) {
+                    $retorno = "notipovalido";
+                    $elerror = 1;
+                }
             }
 
-            if (!file_exists($rutacarpetamine)) {
-                $retorno = "nocarpserver";
-                $elerror = 1;
+            //COMPOBAR SI HAY ".." "..."
+            if ($elerror == 0) {
+
+                $verificar = array('..', '...', '/.', '~', '../', './', ';', ':', '>', '<', '/', '\\', '&&');
+
+                for ($i = 0; $i < count($verificar); $i++) {
+
+                    $test = substr_count($fileName, $verificar[$i]);
+
+                    if ($test >= 1) {
+                        $retorno = "novalidoname";
+                        $elerror = 1;
+                    }
+                }
             }
-        }
 
-        //COMPROBAR PERMISOS ESCRITURA SERVER MINECRAFT
-        if ($elerror == 0) {
-            if (!is_writable($rutacarpetamine)) {
-                $retorno = "nowriteservmine";
-                $elerror = 1;
+            //SI HAY PERMISOS ESCRITURA EN RAIZ
+            if ($elerror == 0) {
+                $rutaraiz = dirname(getcwd()) . PHP_EOL;
+                $rutaraiz = trim($rutaraiz);
+
+                clearstatcache();
+                if (!is_writable($rutaraiz)) {
+                    $retorno = "nowriteraiz";
+                    $elerror = 1;
+                }
             }
-        }
 
-        //CREAR .htaccess
-        if ($elerror == 0) {
-            $rutaescrivir = $rutacarpetamine;
-            $rutaescrivir .= "/.htaccess";
-            $file = fopen($rutaescrivir, "w");
-            fwrite($file, "deny from all" . PHP_EOL);
-            fclose($file);
-        }
+            //COMPROVAR SI EXISTE LA CARPETA MINECRAFT
+            if ($elerror == 0) {
+                $elnombredirectorio = CONFIGDIRECTORIO;
+                $rutacarpetamine = dirname(getcwd()) . PHP_EOL;
+                $rutacarpetamine = trim($rutacarpetamine);
+                $rutacarpetamine .= "/" . $elnombredirectorio;
 
-        //COMPROVAR SI EXISTE EL ARCHIVO A SUBIR EN LA CARPETA MINECRAFT
-        if ($elerror == 0) {
-            $rutacarpetamine .= "/" . $_FILES['uploadedFile']['name'];
-            if (file_exists($rutacarpetamine)) {
-                $retorno = "jarexiste";
-                $elerror = 1;
+                clearstatcache();
+                if (!file_exists($rutacarpetamine)) {
+                    //SI NO EXISTE, CREARLA
+                    mkdir("$rutacarpetamine", 0700);
+
+                    //PERFMISOS FTP
+                    $permcomando = "chmod 775 '" . $rutacarpetamine . "'";
+                    exec($permcomando);
+                }
+
+                clearstatcache();
+                if (!file_exists($rutacarpetamine)) {
+                    $retorno = "nocarpserver";
+                    $elerror = 1;
+                }
             }
-        }
 
-        if ($elerror == 0) {
-            $target_dir = dirname(getcwd()) . PHP_EOL;
-            $target_dir = trim($target_dir);
-            $target_dir .= "/" . $elnombredirectorio . "/";
-            $target_file = $target_dir . basename($_FILES["uploadedFile"]["name"]);
-
-            if (move_uploaded_file($_FILES["uploadedFile"]["tmp_name"], $target_file)) {
-                $retorno = "OK";
-            } else {
-                $retorno = "errorsubir";
+            //COMPROBAR PERMISOS ESCRITURA SERVER MINECRAFT
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!is_writable($rutacarpetamine)) {
+                    $retorno = "nowriteservmine";
+                    $elerror = 1;
+                }
             }
-        }
-    } else {
 
-        $retorno = "errprocess";
+            //CREAR .htaccess
+            if ($elerror == 0) {
+                $rutaescrivir = $rutacarpetamine;
+                $rutaescrivir .= "/.htaccess";
+                $file = fopen($rutaescrivir, "w");
+                fwrite($file, "deny from all" . PHP_EOL);
+                fclose($file);
+            }
+
+            //COMPROVAR SI EXISTE EL ARCHIVO A SUBIR EN LA CARPETA MINECRAFT
+            if ($elerror == 0) {
+                $rutacarpetamine .= "/" . $_FILES['uploadedFile']['name'];
+                clearstatcache();
+                if (file_exists($rutacarpetamine)) {
+                    $retorno = "jarexiste";
+                    $elerror = 1;
+                }
+            }
+
+            if ($elerror == 0) {
+                $target_dir = dirname(getcwd()) . PHP_EOL;
+                $target_dir = trim($target_dir);
+                $target_dir .= "/" . $elnombredirectorio . "/";
+                $target_file = $target_dir . basename($_FILES["uploadedFile"]["name"]);
+
+                if (move_uploaded_file($_FILES["uploadedFile"]["tmp_name"], $target_file)) {
+
+                    //PERFMISOS FTP
+                    $permcomando = "chmod 664 '" . $target_file . "'";
+                    exec($permcomando);
+
+                    $retorno = "OK";
+                } else {
+                    $retorno = "errorsubir";
+                }
+            }
+        } else {
+
+            $retorno = "errprocess";
+        }
+
+        echo $retorno;
     }
-
-    echo $retorno;
 }

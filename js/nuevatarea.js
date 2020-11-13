@@ -31,6 +31,7 @@ $(document).ready(function() {
             }
         } else {
             document.getElementById("elcomando").disabled = true;
+            document.getElementById("elcomando").value = "";
             if (document.getElementById("nombretarea").value == "") {
                 document.getElementById("creatarea").disabled = true;
             } else {
@@ -39,7 +40,7 @@ $(document).ready(function() {
         }
     });
 
-    $("#elcomando").change(function(e) {
+    $("#elcomando").keyup(function(e) {
         if (document.getElementById("elcomando").value == "") {
             document.getElementById("creatarea").disabled = true;
         } else {
@@ -48,7 +49,11 @@ $(document).ready(function() {
 
     });
 
-    $("#nombretarea").change(function(e) {
+    document.getElementById("elcomando").addEventListener('paste', function(event) {
+        document.getElementById("creatarea").disabled = false;
+    });
+
+    $("#nombretarea").keyup(function(e) {
         if (document.getElementById("nombretarea").value == "") {
             document.getElementById("creatarea").disabled = true;
         } else {

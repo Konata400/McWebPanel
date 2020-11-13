@@ -32,35 +32,38 @@ function test_input($data)
 
 //COMPROVAR SI SESSION EXISTE SINO CREARLA CON NO
 if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
-	$_SESSION['VALIDADO'] = "NO";
-	$_SESSION['KEYSECRETA'] = "0";
+  $_SESSION['VALIDADO'] = "NO";
+  $_SESSION['KEYSECRETA'] = "0";
 }
 
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-  if (isset($_POST['action']) && !empty($_POST['action'])) {
-    $devolucion = utf8_decode("");
-    $rutaarchivo = "";
+  if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pconsolaread', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pconsolaread'] == 1) {
 
-    //OBTENER RUTA LOG MINECRAFT
-    $elnombredirectorio = CONFIGDIRECTORIO;
-    $rutaarchivo = dirname(getcwd()) . PHP_EOL;
-    $rutaarchivo = trim($rutaarchivo);
-    $rutaarchivo .= "/" . $elnombredirectorio . "/logs/latest.log";
+    if (isset($_POST['action']) && !empty($_POST['action'])) {
+      $devolucion = utf8_decode("");
+      $rutaarchivo = "";
 
-    //COMPROVAR SI EXISTE LA RUTA
-    if (file_exists($rutaarchivo)) {
-      //COMPROVAR SI SE PUEDE LEER
-      if (is_readable($rutaarchivo)) {
-        $devolucion = file_get_contents($rutaarchivo);
+      //OBTENER RUTA LOG MINECRAFT
+      $elnombredirectorio = CONFIGDIRECTORIO;
+      $rutaarchivo = dirname(getcwd()) . PHP_EOL;
+      $rutaarchivo = trim($rutaarchivo);
+      $rutaarchivo .= "/" . $elnombredirectorio . "/logs/latest.log";
+
+      //COMPROVAR SI EXISTE LA RUTA
+      if (file_exists($rutaarchivo)) {
+        //COMPROVAR SI SE PUEDE LEER
+        if (is_readable($rutaarchivo)) {
+          $devolucion = file_get_contents($rutaarchivo);
+        } else {
+          $devolucion = "No se puede leer el archvio";
+        }
       } else {
-        $devolucion = "No se puede leer el archvio";
+        $devolucion = "";
       }
-    } else {
-      $devolucion = "";
-    }
 
-    echo $devolucion;
+      echo $devolucion;
+    }
   }
 }

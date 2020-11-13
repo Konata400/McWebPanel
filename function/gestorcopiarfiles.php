@@ -31,86 +31,103 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivoscopiar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivoscopiar'] == 1) {
 
-        $copiados = array();
-        $retorno = "";
-        $elerror = 0;
-        $test = 0;
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-        $copiados = $_POST['action'];
+            $copiados = array();
+            $retorno = "";
+            $elerror = 0;
+            $test = 0;
 
-        //COMPROBAR SI ESTA VACIO
-        if ($elerror == 0) {
-            if ($copiados == "") {
-                $retorno = "nocopy";
-                $elerror = 1;
-            }
-        }
+            $copiados = $_POST['action'];
 
-        //SANEAR INPUT ENTRANTE ARRAY
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($copiados); $a++) {
-                $copiados[$a] = trim($copiados[$a]);
-                $copiados[$a] = stripslashes($copiados[$a]);
-                $copiados[$a] = htmlspecialchars($copiados[$a]);
-            }
-        }
-
-        //AÑADIR RUTA ACTUAL AL COPIADOS
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($copiados); $a++) {
-                $copiados[$a] = $_SESSION['RUTACTUAL'] . "/" . $copiados[$a];
-            }
-        }
-
-        //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
-        if ($elerror == 0) {
-
-            for ($a = 0; $a < count($copiados); $a++) {
-
-                if ($_SESSION['RUTALIMITE'] != substr($copiados[$a], 0, strlen($_SESSION['RUTALIMITE']))) {
-                    $retorno = "rutacambiada";
+            //COMPROBAR SI ESTA VACIO
+            if ($elerror == 0) {
+                if ($copiados == "") {
+                    $retorno = "nocopy";
                     $elerror = 1;
                 }
             }
-        }
 
-        //COMPOBAR SI HAY ".." "..."
-        if ($elerror == 0) {
+            //SANEAR INPUT ENTRANTE ARRAY
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($copiados); $a++) {
+                    $copiados[$a] = trim($copiados[$a]);
+                    $copiados[$a] = stripslashes($copiados[$a]);
+                    $copiados[$a] = htmlspecialchars($copiados[$a]);
+                }
+            }
 
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
+            //AÑADIR RUTA ACTUAL AL COPIADOS
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($copiados); $a++) {
+                    $copiados[$a] = $_SESSION['RUTACTUAL'] . "/" . $copiados[$a];
+                }
+            }
 
-            for ($a = 0; $a < count($copiados); $a++) {
+            //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
+            if ($elerror == 0) {
 
-                for ($i = 0; $i < count($verificar); $i++) {
+                for ($a = 0; $a < count($copiados); $a++) {
 
-                    $test = substr_count($copiados[$a], $verificar[$i]);
-
-                    if ($test >= 1) {
-                        $retorno = "novalido";
+                    if ($_SESSION['RUTALIMITE'] != substr($copiados[$a], 0, strlen($_SESSION['RUTALIMITE']))) {
+                        $retorno = "rutacambiada";
                         $elerror = 1;
                     }
                 }
             }
-        }
 
-        //MIRAR SI EXISTE
-        if ($elerror == 0) {
-            for ($a = 0; $a < count($copiados); $a++) {
-                clearstatcache();
-                if (!file_exists($copiados[$a])) {
-                    $retorno = "noexiste";
-                    $elerror = 1;
+            //COMPOBAR SI HAY ".." "..."
+            if ($elerror == 0) {
+
+                $verificar = array('..', '...', '~', '../', './', '&&');
+
+                for ($a = 0; $a < count($copiados); $a++) {
+
+                    for ($i = 0; $i < count($verificar); $i++) {
+
+                        $test = substr_count($copiados[$a], $verificar[$i]);
+
+                        if ($test >= 1) {
+                            $retorno = "novalido";
+                            $elerror = 1;
+                        }
+                    }
                 }
             }
-        }
 
-        if ($elerror == 0) {
-            $_SESSION['COPIARFILES'] = $copiados;
-            $retorno = "OK";
-        }
+            //MIRAR SI EXISTE
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($copiados); $a++) {
+                    clearstatcache();
+                    if (!file_exists($copiados[$a])) {
+                        $retorno = "noexiste";
+                        $elerror = 1;
+                    }
+                }
+            }
 
-        echo $retorno;
+            //COMPROVAR SI SE PUEDEN ENTER/EJECUTAR
+            if ($elerror == 0) {
+                for ($a = 0; $a < count($copiados); $a++) {
+                    clearstatcache();
+                    if (is_dir($copiados[$a])) {
+                        clearstatcache();
+                        if (!is_executable($copiados[$a])) {
+                            $retorno = "nopermenter";
+                            $elerror = 1;
+                        }
+                    }
+                }
+            }
+
+            if ($elerror == 0) {
+                $_SESSION['COPIARFILES'] = $copiados;
+                $retorno = "OK";
+            }
+
+            echo $retorno;
+        }
     }
 }

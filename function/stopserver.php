@@ -39,25 +39,40 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pstatusstopserver', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pstatusstopserver'] == 1) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-        $retorno = "";
-        $elerror = 0;
+            $retorno = "";
+            $elerror = 0;
 
-        //OBTENER PID SABER SI ESTA EN EJECUCION
-        $elcomando = "";
-        $elnombrescreen = CONFIGDIRECTORIO;
-        $elcomando = "screen -ls | awk '/\." . $elnombrescreen . "\t/ {print strtonum($1)'}";
-        $elpid = shell_exec($elcomando);
+            $dirconfig = "";
 
-        //SI ESTA EN EJECUCION ENVIAR COMANDO APAGAR
-        if (!$elpid == "") {
-            $paraejecutar = "stop";
-            $laejecucion = 'screen -S ' . $elnombrescreen . ' -X stuff "' . $paraejecutar . '\\015"';
-            shell_exec($laejecucion);
-            $retorno = "ok";
+            //OBTENER PID SABER SI ESTA EN EJECUCION
+            $elcomando = "";
+            $elnombrescreen = CONFIGDIRECTORIO;
+            $elcomando = "screen -ls | awk '/\." . $elnombrescreen . "\t/ {print strtonum($1)'}";
+            $elpid = shell_exec($elcomando);
+
+            //SI ESTA EN EJECUCION ENVIAR COMANDO APAGAR
+            if (!$elpid == "") {
+                $paraejecutar = "stop";
+                $laejecucion = 'screen -S ' . $elnombrescreen . ' -X stuff "' . $paraejecutar . '\\015"';
+                shell_exec($laejecucion);
+
+                //PERFMISOS FTP
+                $dirconfig = dirname(getcwd()) . PHP_EOL;
+                $dirconfig = trim($dirconfig);
+                $dirconfig .= "/" . $elnombrescreen;
+
+                $permcomando = "cd '" . $dirconfig . "' && find . -type d -print0 | xargs -0 -I {} chmod 775 {}";
+                exec($permcomando);
+                $permcomando = "cd '" . $dirconfig . "' && find . -type f -print0 | xargs -0 -I {} chmod 664 {}";
+                exec($permcomando);
+
+                $retorno = "ok";
+            }
+            echo $retorno;
         }
-        echo $retorno;
     }
 }

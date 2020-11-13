@@ -40,101 +40,104 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pprogtareasactdes', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pprogtareasactdes'] == 1) {
 
-        if (isset($_POST['action']) && !empty($_POST['action'])) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $indexarrayborrar = test_input($_POST['action']);
+            if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-            if ($indexarrayborrar == 'CERO') {
-                $indexarrayborrar = 0;
-            }
+                $indexarrayborrar = test_input($_POST['action']);
 
-            //OBTENER RUTA CONFIG
-            $rutaarchivo = dirname(getcwd()) . PHP_EOL;
-            $rutaarchivo = trim($rutaarchivo);
-            $rutaarchivo .= "/config";
-
-            $elarchivo = $rutaarchivo;
-            $elarchivo .= "/array.json";
-
-            //COMPROVAR SI EXISTE CARPETA CONFIG
-            if ($elerror == 0) {
-                if (!file_exists($rutaarchivo)) {
-                    $retorno = "errarchnoconfig";
-                    $elerror = 1;
+                if ($indexarrayborrar == 'CERO') {
+                    $indexarrayborrar = 0;
                 }
-            }
 
-            //COMPROVAR SI CONFIG TIENE PERMISOS DE LECTURA
-            if ($elerror == 0) {
-                if (!is_readable($rutaarchivo)) {
-                    $retorno = "errconfignoread";
-                    $elerror = 1;
-                }
-            }
+                //OBTENER RUTA CONFIG
+                $rutaarchivo = dirname(getcwd()) . PHP_EOL;
+                $rutaarchivo = trim($rutaarchivo);
+                $rutaarchivo .= "/config";
 
-            //COMPROVAR SI CONFIG TIENE PERMISOS DE ESCRITURA
-            if ($elerror == 0) {
-                if (!is_writable($rutaarchivo)) {
-                    $retorno = "errconfignowrite";
-                    $elerror = 1;
-                }
-            }
+                $elarchivo = $rutaarchivo;
+                $elarchivo .= "/array.json";
 
-            if ($elerror == 0) {
-                clearstatcache();
-                if (file_exists($elarchivo)) {
-
-                    //COMPROVAR SI SE PUEDE LEER EL JSON
-                    if ($elerror == 0) {
-                        if (!is_readable($elarchivo)) {
-                            $retorno = "errjsonnoread";
-                            $elerror = 1;
-                        }
+                //COMPROVAR SI EXISTE CARPETA CONFIG
+                if ($elerror == 0) {
+                    if (!file_exists($rutaarchivo)) {
+                        $retorno = "errarchnoconfig";
+                        $elerror = 1;
                     }
+                }
 
-                    //COMPROVAR SI SE PUEDE ESCRIVIR EL JSON
-                    if ($elerror == 0) {
-                        if (!is_writable($elarchivo)) {
-                            $retorno = "errjsonnowrite";
-                            $elerror = 1;
-                        }
+                //COMPROVAR SI CONFIG TIENE PERMISOS DE LECTURA
+                if ($elerror == 0) {
+                    if (!is_readable($rutaarchivo)) {
+                        $retorno = "errconfignoread";
+                        $elerror = 1;
                     }
+                }
 
-                    if ($elerror == 0) {
-                        //LEER FICHERO OBTENER ARRAY
-                        $getarray = file_get_contents($elarchivo);
-                        $arrayobtenido = unserialize($getarray);
+                //COMPROVAR SI CONFIG TIENE PERMISOS DE ESCRITURA
+                if ($elerror == 0) {
+                    if (!is_writable($rutaarchivo)) {
+                        $retorno = "errconfignowrite";
+                        $elerror = 1;
+                    }
+                }
 
-                        $elindice = count($arrayobtenido);
+                if ($elerror == 0) {
+                    clearstatcache();
+                    if (file_exists($elarchivo)) {
 
-                        for ($i = 0; $i < $elindice; $i++) {
-                            if ($indexarrayborrar == $i) {
-                                $getestado = $arrayobtenido[$i]['estado'];
-
-                                switch ($getestado) {
-                                    case "activado":
-                                        $getestado = "desactivado";
-                                        break;
-                                    case "desactivado":
-                                        $getestado = "activado";
-                                        break;
-                                }
-
-                                $arrayobtenido[$i]['estado'] = $getestado;
+                        //COMPROVAR SI SE PUEDE LEER EL JSON
+                        if ($elerror == 0) {
+                            if (!is_readable($elarchivo)) {
+                                $retorno = "errjsonnoread";
+                                $elerror = 1;
                             }
                         }
-                        
-                        $serialized = serialize($arrayobtenido);
-                        file_put_contents($elarchivo, $serialized);
 
-                        $retorno = "OK";
+                        //COMPROVAR SI SE PUEDE ESCRIVIR EL JSON
+                        if ($elerror == 0) {
+                            if (!is_writable($elarchivo)) {
+                                $retorno = "errjsonnowrite";
+                                $elerror = 1;
+                            }
+                        }
+
+                        if ($elerror == 0) {
+                            //LEER FICHERO OBTENER ARRAY
+                            $getarray = file_get_contents($elarchivo);
+                            $arrayobtenido = unserialize($getarray);
+
+                            $elindice = count($arrayobtenido);
+
+                            for ($i = 0; $i < $elindice; $i++) {
+                                if ($indexarrayborrar == $i) {
+                                    $getestado = $arrayobtenido[$i]['estado'];
+
+                                    switch ($getestado) {
+                                        case "activado":
+                                            $getestado = "desactivado";
+                                            break;
+                                        case "desactivado":
+                                            $getestado = "activado";
+                                            break;
+                                    }
+
+                                    $arrayobtenido[$i]['estado'] = $getestado;
+                                }
+                            }
+
+                            $serialized = serialize($arrayobtenido);
+                            file_put_contents($elarchivo, $serialized);
+
+                            $retorno = "OK";
+                        }
                     }
                 }
-            }
 
-            echo $retorno;
+                echo $retorno;
+            }
         }
     }
 }

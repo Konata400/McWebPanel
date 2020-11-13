@@ -38,113 +38,116 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action']) || isset($_POST['renombre']) && !empty($_POST['renombre'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivosrenombrar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivosrenombrar'] == 1) {
 
-        $archivo = "";
-        $renombre = "";
-        $retorno = "";
-        $elerror = 0;
-        $nuevofile = "";
-        $getinfofile = "";
-        $test = 0;
+        if (isset($_POST['action']) && !empty($_POST['action']) || isset($_POST['renombre']) && !empty($_POST['renombre'])) {
 
-        $archivo = test_input($_POST['action']);
-        $renombre = test_input($_POST['renombre']);
+            $archivo = "";
+            $renombre = "";
+            $retorno = "";
+            $elerror = 0;
+            $nuevofile = "";
+            $getinfofile = "";
+            $test = 0;
 
-        //COMPROVAR SI ESTA VACIO RENOMBRE
-        if ($elerror == 0) {
-            if ($renombre == "") {
-                $retorno = "revacio";
-                $elerror = 1;
-            }
-        }
+            $archivo = test_input($_POST['action']);
+            $renombre = test_input($_POST['renombre']);
 
-        //COMPROVAR SI ESTA VACIO ARCHIVO
-        if ($elerror == 0) {
-            if ($archivo == "") {
-                $retorno = "archvacio";
-                $elerror = 1;
-            }
-        }
-
-        //AÑADIR RUTAS
-        if ($elerror == 0) {
-            $archivo = $_SESSION['RUTACTUAL'] . "/" . $archivo;
-            $nuevofile = $_SESSION['RUTACTUAL'] . "/" . $renombre;
-        }
-
-        //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
-        if ($elerror == 0) {
-            if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
-                $retorno = "rutacambiada";
-                $elerror = 1;
-            }
-        }
-
-        //COMPOBAR SI HAY ".." "..." EN RUTA
-        if ($elerror == 0) {
-
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
-
-            for ($i = 0; $i < count($verificar); $i++) {
-
-                $test = substr_count($archivo, $verificar[$i]);
-
-                if ($test >= 1) {
-                    $retorno = "novalido";
+            //COMPROVAR SI ESTA VACIO RENOMBRE
+            if ($elerror == 0) {
+                if ($renombre == "") {
+                    $retorno = "revacio";
                     $elerror = 1;
                 }
             }
-        }
 
-        //COMPOBAR SI HAY ".." "..." EN RENOMBRE
-        if ($elerror == 0) {
-
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
-
-            for ($i = 0; $i < count($verificar); $i++) {
-
-                $test = substr_count($nuevofile, $verificar[$i]);
-
-                if ($test >= 1) {
-                    $retorno = "renomnovalido";
+            //COMPROVAR SI ESTA VACIO ARCHIVO
+            if ($elerror == 0) {
+                if ($archivo == "") {
+                    $retorno = "archvacio";
                     $elerror = 1;
                 }
             }
-        }
 
-        //MIRAR SI EXISTE
-        if ($elerror == 0) {
-            clearstatcache();
-            if (!file_exists($archivo)) {
-                $retorno = "noexiste";
-                $elerror = 1;
+            //AÑADIR RUTAS
+            if ($elerror == 0) {
+                $archivo = $_SESSION['RUTACTUAL'] . "/" . $archivo;
+                $nuevofile = $_SESSION['RUTACTUAL'] . "/" . $renombre;
             }
-        }
 
-        //COMPROVAR SI EL RENOMBRE NUEVO A CREAR EXISTE
-        if ($elerror == 0) {
-            clearstatcache();
-            if (file_exists($nuevofile)) {
-                $retorno = "yaexiste";
-                $elerror = 1;
+            //COMPROVAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
+            if ($elerror == 0) {
+                if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
+                    $retorno = "rutacambiada";
+                    $elerror = 1;
+                }
             }
-        }
 
-        //COMPROVAR SI SE PUEDE ESCRIVIR
-        if ($elerror == 0) {
-            clearstatcache();
-            if (!is_writable($archivo)) {
-                $retorno = "nowrite";
-                $elerror = 1;
+            //COMPOBAR SI HAY ".." "..." EN RUTA
+            if ($elerror == 0) {
+
+                $verificar = array('..', '...', '~', '../', './', '&&');
+
+                for ($i = 0; $i < count($verificar); $i++) {
+
+                    $test = substr_count($archivo, $verificar[$i]);
+
+                    if ($test >= 1) {
+                        $retorno = "novalido";
+                        $elerror = 1;
+                    }
+                }
             }
-        }
 
-        //RENOMBRAR
-        if ($elerror == 0) {
-            $retorno = rename($archivo, $nuevofile);
-        }
+            //COMPOBAR SI HAY ".." "..." EN RENOMBRE
+            if ($elerror == 0) {
 
-        echo $retorno;
+                $verificar = array('..', '...', '~', '../', './', '&&');
+
+                for ($i = 0; $i < count($verificar); $i++) {
+
+                    $test = substr_count($nuevofile, $verificar[$i]);
+
+                    if ($test >= 1) {
+                        $retorno = "renomnovalido";
+                        $elerror = 1;
+                    }
+                }
+            }
+
+            //MIRAR SI EXISTE
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!file_exists($archivo)) {
+                    $retorno = "noexiste";
+                    $elerror = 1;
+                }
+            }
+
+            //COMPROVAR SI EL RENOMBRE NUEVO A CREAR EXISTE
+            if ($elerror == 0) {
+                clearstatcache();
+                if (file_exists($nuevofile)) {
+                    $retorno = "yaexiste";
+                    $elerror = 1;
+                }
+            }
+
+            //COMPROVAR SI SE PUEDE ESCRIVIR
+            if ($elerror == 0) {
+                clearstatcache();
+                if (!is_writable($archivo)) {
+                    $retorno = "nowrite";
+                    $elerror = 1;
+                }
+            }
+
+            //RENOMBRAR
+            if ($elerror == 0) {
+                $retorno = rename($archivo, $nuevofile);
+            }
+
+            echo $retorno;
+        }
     }
 }

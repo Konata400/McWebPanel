@@ -38,69 +38,72 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_SESSION['RUTACTUAL'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivosdescargar', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivosdescargar'] == 1) {
 
-        if (isset($_GET['action']) && !empty($_GET['action'])) {
+        if (isset($_SESSION['RUTACTUAL'])) {
 
-            $retorno = "";
-            $getinfofile = "";
-            $elerror = 0;
-            $test = 0;
+            if (isset($_GET['action']) && !empty($_GET['action'])) {
 
-            $dirconfig = test_input($_GET['action']);
+                $retorno = "";
+                $getinfofile = "";
+                $elerror = 0;
+                $test = 0;
 
-            //Evitar poder ir a una ruta hacia atras
-            if (strpos($dirconfig, '..') !== false || strpos($dirconfig, '*.*') !== false || strpos($dirconfig, '*/*.*') !== false) {
-                exit;
-            }
+                $dirconfig = test_input($_GET['action']);
 
-            //AÑADIR RUTA ACTUAL AL ARCHIVO
-            if ($elerror == 0) {
-                $dirconfig = $_SESSION['RUTACTUAL'] . "/" . $dirconfig;
-            }
+                //Evitar poder ir a una ruta hacia atras
+                if (strpos($dirconfig, '..') !== false || strpos($dirconfig, '*.*') !== false || strpos($dirconfig, '*/*.*') !== false) {
+                    exit;
+                }
 
-            //COMPOBAR SI HAY ".." "..."
-            if ($elerror == 0) {
+                //AÑADIR RUTA ACTUAL AL ARCHIVO
+                if ($elerror == 0) {
+                    $dirconfig = $_SESSION['RUTACTUAL'] . "/" . $dirconfig;
+                }
 
-                $verificar = array('..', '...', '/.', '~', '../', './', '&&');
+                //COMPOBAR SI HAY ".." "..."
+                if ($elerror == 0) {
 
-                for ($i = 0; $i < count($verificar); $i++) {
+                    $verificar = array('..', '...', '/.', '~', '../', './', '&&');
 
-                    $test = substr_count($dirconfig, $verificar[$i]);
+                    for ($i = 0; $i < count($verificar); $i++) {
 
-                    if ($test >= 1) {
-                        exit;
+                        $test = substr_count($dirconfig, $verificar[$i]);
+
+                        if ($test >= 1) {
+                            exit;
+                        }
                     }
                 }
-            }
 
-            $getinfofile = pathinfo($dirconfig);
+                $getinfofile = pathinfo($dirconfig);
 
-            //COMPROVAR SI ESTAS DENTRO DE LA CARPETA DEL FICHERO QUE QUIERES DESCARGAR
-            if ($getinfofile['dirname'] != $_SESSION['RUTACTUAL']) {
-                exit;
-            }
-
-
-            //COMPROVAR SI EXISTE
-            clearstatcache();
-            if (file_exists($dirconfig)) {
-                //COMPROVAR SI SE PUEDE LEER
-                clearstatcache();
-                if (is_readable($dirconfig)) {
-                    header('Content-Description: File Transfer');
-                    header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename="' . basename($dirconfig) . '"');
-                    header('Expires: 0');
-                    header('Cache-Control: must-revalidate');
-                    header('Pragma: public');
-                    header('Content-Length: ' . filesize($dirconfig));
-                    readfile($dirconfig);
+                //COMPROVAR SI ESTAS DENTRO DE LA CARPETA DEL FICHERO QUE QUIERES DESCARGAR
+                if ($getinfofile['dirname'] != $_SESSION['RUTACTUAL']) {
                     exit;
-                } else {
-                    echo ('<!doctype html><html lang="es"><head><title>Backups</title><link rel="stylesheet" href="../css/bootstrap.min.css"></head><body>');
-                    echo '<div class="alert alert-danger" role="alert">Error: El backup no tiene permisos de lectura.</div>';
-                    echo ('</body></html>');
+                }
+
+
+                //COMPROVAR SI EXISTE
+                clearstatcache();
+                if (file_exists($dirconfig)) {
+                    //COMPROVAR SI SE PUEDE LEER
+                    clearstatcache();
+                    if (is_readable($dirconfig)) {
+                        header('Content-Description: File Transfer');
+                        header('Content-Type: application/octet-stream');
+                        header('Content-Disposition: attachment; filename="' . basename($dirconfig) . '"');
+                        header('Expires: 0');
+                        header('Cache-Control: must-revalidate');
+                        header('Pragma: public');
+                        header('Content-Length: ' . filesize($dirconfig));
+                        readfile($dirconfig);
+                        exit;
+                    } else {
+                        echo ('<!doctype html><html lang="es"><head><title>Backups</title><link rel="stylesheet" href="../css/bootstrap.min.css"></head><body>');
+                        echo '<div class="alert alert-danger" role="alert">Error: El backup no tiene permisos de lectura.</div>';
+                        echo ('</body></html>');
+                    }
                 }
             }
         }

@@ -46,6 +46,7 @@ function test_input($data)
         $_SESSION['VALIDADO'] = "NO";
         $_SESSION['KEYSECRETA'] = "0";
         header("location:index.php");
+        exit;
     }
 
     //VALIDAMOS SESSION SINO ERROR
@@ -95,9 +96,21 @@ function test_input($data)
                                                     <div class="card">
                                                         <div class="card-header text-white bg-info">Acciones Servidor</div>
                                                         <div class="card-body">
-                                                            <button class="btn btn-primary mx-1" id="binicio" name="binicio" value="binicio" type="button">Iniciar Servidor</button>
-                                                            <button class="btn btn-primary mx-1" id="bparar" name="bparar" value="bparar" type="button">Apagar Servidor</button>
-                                                            <button class="btn btn-danger mx-1" id="bkill" name="bkill" value="bkill" type="button">Matar Servidor</button>
+
+                                                            <?php
+                                                            if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pstatusstarserver', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pstatusstarserver'] == 1) {
+                                                                echo ('<button class="btn btn-primary mx-1" id="binicio" name="binicio" value="binicio" type="button">Iniciar Servidor</button>');
+                                                            }
+
+                                                            if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pstatusstopserver', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pstatusstopserver'] == 1) {
+                                                                echo ('<button class="btn btn-primary mx-1" id="bparar" name="bparar" value="bparar" type="button">Apagar Servidor</button>');
+                                                            }
+
+                                                            if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pstatuskillserver', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pstatuskillserver'] == 1) {
+                                                            echo ('<button class="btn btn-danger mx-1" id="bkill" name="bkill" value="bkill" type="button">Matar Servidor</button>');
+                                                            }
+                                                            ?>
+
                                                         </div>
                                                     </div>
 
@@ -126,15 +139,17 @@ function test_input($data)
 
                     </div>
                     <!-- End of Page Wrapper -->
+                </div>
+            </div>
+        </div>
+        <script src="js/status.js"></script>
 
-                    <script src="js/status.js"></script>
-
-                <?php
-                //FINAL VALIDAR SESSION
-            } else {
-                header("location:index.php");
-            }
-                ?>
+    <?php
+        //FINAL VALIDAR SESSION
+    } else {
+        header("location:index.php");
+    }
+    ?>
 </body>
 
 </html>

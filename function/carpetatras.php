@@ -39,81 +39,83 @@ if (!isset($_SESSION['VALIDADO']) || !isset($_SESSION['KEYSECRETA'])) {
 //VALIDAMOS SESSION
 if ($_SESSION['VALIDADO'] == $_SESSION['KEYSECRETA']) {
 
-    if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_SESSION['CONFIGUSER']['rango'] == 1 || $_SESSION['CONFIGUSER']['rango'] == 2 || array_key_exists('pgestorarchivos', $_SESSION['CONFIGUSER']) && $_SESSION['CONFIGUSER']['pgestorarchivos'] == 1) {
 
-        $retorno = "";
-        $elerror = 0;
-        $downOne = "";
-        $dirraiz = "";
-        $test = 0;
+        if (isset($_POST['action']) && !empty($_POST['action'])) {
 
-        $archivo = test_input($_POST['action']);
+            $retorno = "";
+            $elerror = 0;
+            $downOne = "";
+            $dirraiz = "";
+            $test = 0;
 
-        //COMPROBAR SI ESTA VACIO
-        if ($elerror == 0) {
-            if ($archivo == "") {
-                $retorno = "nada";
-                $elerror = 1;
-            }
-        }
+            $archivo = test_input($_POST['action']);
 
-        //AÑADIR RUTA ACTUAL AL ARCHIVO
-        if ($elerror == 0) {
-            $archivo = $_SESSION['RUTACTUAL'];
-        }
-
-        //COMPROBAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
-        if ($elerror == 0) {
-            if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
-                $retorno = "rutacambiada";
-                $elerror = 1;
-            }
-        }
-
-        //COMPOBAR SI HAY ".." "..."
-        if ($elerror == 0) {
-
-            $verificar = array('..', '...', '/.', '~', '../', './', '&&');
-
-            for ($i = 0; $i < count($verificar); $i++) {
-
-                $test = substr_count($archivo, $verificar[$i]);
-
-                if ($test >= 1) {
-                    $retorno = "novalido";
+            //COMPROBAR SI ESTA VACIO
+            if ($elerror == 0) {
+                if ($archivo == "") {
+                    $retorno = "nada";
                     $elerror = 1;
                 }
             }
-        }
 
-        //AÑADIR COLETILLA PARA IR ATRAS
-        if ($elerror == 0) {
-            $getsession = $_SESSION['RUTALIMITE'];
-
-            $dirraiz = "";
-            $dirraiz = dirname(getcwd()) . PHP_EOL;
-            $dirraiz = trim($dirraiz);
-
-            $downOne = dirname($archivo, 1);
-
-            if ($downOne == $dirraiz) {
-                $retorno = "noatras";
-                $elerror = 1;
+            //AÑADIR RUTA ACTUAL AL ARCHIVO
+            if ($elerror == 0) {
+                $archivo = $_SESSION['RUTACTUAL'];
             }
 
-            //COMPROBAR QUE LA RUTA OBTENIDA NO ESTE POR DEBAJO DE RUTA RAIZ
-            if($dirraiz != substr($archivo,0,strlen($dirraiz))){
-                $retorno = "noatras";
-                $elerror = 1;
+            //COMPROBAR QUE EL INICIO DE RUTA SEA IGUAL A LA SESSION
+            if ($elerror == 0) {
+                if ($_SESSION['RUTALIMITE'] != substr($archivo, 0, strlen($_SESSION['RUTALIMITE']))) {
+                    $retorno = "rutacambiada";
+                    $elerror = 1;
+                }
             }
 
-        }
+            //COMPOBAR SI HAY ".." "..."
+            if ($elerror == 0) {
 
-        if ($elerror == 0) {
-            $_SESSION['RUTACTUAL'] = $downOne;
-            $retorno = "OK";
-        }
+                $verificar = array('..', '...', '~', '../', './', '&&');
 
-        echo $retorno;
+                for ($i = 0; $i < count($verificar); $i++) {
+
+                    $test = substr_count($archivo, $verificar[$i]);
+
+                    if ($test >= 1) {
+                        $retorno = "novalido";
+                        $elerror = 1;
+                    }
+                }
+            }
+
+            //AÑADIR COLETILLA PARA IR ATRAS
+            if ($elerror == 0) {
+                $getsession = $_SESSION['RUTALIMITE'];
+
+                $dirraiz = "";
+                $dirraiz = dirname(getcwd()) . PHP_EOL;
+                $dirraiz = trim($dirraiz);
+
+                $downOne = dirname($archivo, 1);
+
+                if ($downOne == $dirraiz) {
+                    $retorno = "noatras";
+                    $elerror = 1;
+                }
+
+                //COMPROBAR QUE LA RUTA OBTENIDA NO ESTE POR DEBAJO DE RUTA RAIZ
+                if ($dirraiz != substr($archivo, 0, strlen($dirraiz))) {
+                    $retorno = "noatras";
+                    $elerror = 1;
+                }
+            }
+
+            if ($elerror == 0) {
+                $_SESSION['RUTACTUAL'] = $downOne;
+                $retorno = "OK";
+            }
+
+            echo $retorno;
+        }
     }
 }

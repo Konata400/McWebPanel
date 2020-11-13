@@ -1,0 +1,91 @@
+.iconservlist {
+    width: 72px!important;
+    height: 68px!important;
+    background-image: url(../img/iconservlist.png)!important;
+    background-position: top lef!important;
+    background-size: auto!important;
+    background-repeat: no-repeat!important;
+}
+
+.imgservlist {
+    width: 536px!important;
+    height: 68px!important;
+    background-image: url(../img/mineservlist.png)!important;
+    background-position: top lef!important;
+    background-size: auto!important;
+    background-repeat: no-repeat!important;
+    line-height: 15pt;
+}
+
+.minirow {
+    width: 608px!important;
+    height: 68px!important;
+}
+
+.colreset {
+    color: #808080!important;
+}
+
+.col01 {
+    color: #000000!important;
+}
+
+.col02 {
+    color: #0000AA!important;
+}
+
+.col03 {
+    color: #00AA00!important;
+}
+
+.col04 {
+    color: #00AAAA!important;
+}
+
+.col05 {
+    color: #AA0000!important;
+}
+
+.col06 {
+    color: #AA00AA!important;
+}
+
+.col07 {
+    color: #FFAA00!important;
+}
+
+.col08 {
+    color: #AAAAAA!important;
+}
+
+.col09 {
+    color: #555555!important;
+}
+
+.col10 {
+    color: #5555FF!important;
+}
+
+.col11 {
+    color: #55FF55!important;
+}
+
+.col12 {
+    color: #55FFFF!important;
+}
+
+.col13 {
+    color: #FF5555!important;
+}
+
+.col14 {
+    color: #FF55FF!important;
+}
+
+.col15 {
+    color: #FFFF55!important;
+}
+
+.col16 {
+    color: #FFFFFF!important;
+}

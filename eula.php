@@ -37,6 +37,7 @@ require_once("template/header.php");
         $_SESSION['VALIDADO'] = "NO";
         $_SESSION['KEYSECRETA'] = "0";
         header("location:index.php");
+        exit;
     }
 
     //VALIDAMOS SESSION SINO ERROR
